@@ -8,8 +8,8 @@ if ('serviceWorker' in navigator) {
 
     if (_script && _script.src) {
       // ყველაზე სანდო მეთოდი: ამ ფაილის URL-დან ვიანგარიშებთ SW-ის მისამართს
-      // მაგ: https://ezdanapak.github.io/GIS_OS_Doc/js/service-worker-register.js
-      //   → https://ezdanapak.github.io/GIS_OS_Doc/service-worker.js
+      // მაგ: https://osdoc.qgis.ge/js/service-worker-register.js
+      //   → https://osdoc.qgis.ge/service-worker.js
       swUrl = _script.src.replace(/js\/service-worker-register\.js.*$/, 'service-worker.js');
     } else {
       // fallback: base href-ზე დაყრდნობა

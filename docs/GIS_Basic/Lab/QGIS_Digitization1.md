@@ -1,6 +1,6 @@
 # დიგიტალიზაცია 1
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 ოფიციალური დოკუმენტაცია <br>
 
@@ -72,7 +72,7 @@
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **გლობალური პოზიციონირების სისტემები [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/GPS/)**
+* ვიყენებთ წინა დავალებას **გლობალური პოზიციონირების სისტემები [task](https://gtu.qgis.ge/GIS_SKA/Lab/GPS/)**
 
 
 

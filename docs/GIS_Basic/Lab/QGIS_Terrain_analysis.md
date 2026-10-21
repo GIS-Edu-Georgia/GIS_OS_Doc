@@ -1,6 +1,6 @@
 # რელიეფის ანალიზი
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 
 ### ⚙️ Processing Toolbox <br>
@@ -80,7 +80,7 @@ NASA [Earthdata](https://urs.earthdata.nasa.gov/) <br>
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **მონიშვნები [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/Selection/)**
+* ვიყენებთ წინა დავალებას **მონიშვნები [task](https://gtu.qgis.ge/GIS_SKA/Lab/Selection/)**
 
 
 

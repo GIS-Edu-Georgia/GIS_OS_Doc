@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     // პირველი ცდა — custom domain
     private val PRIMARY_URL = "https://osdoc.qgis.ge/"
     // fallback — GitHub Pages (ყოველთვის მუშაობს)
-    private val FALLBACK_URL = "https://ezdanapak.github.io/GIS_OS_Doc/"
+    private val FALLBACK_URL = "https://osdoc.qgis.ge/"
     private var usedFallback = false
 
     @SuppressLint("SetJavaScriptEnabled")

@@ -1,6 +1,6 @@
 # გეომონაცემთა ბაზები
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 ოფიციალური დოკუმენტაცია <br>
 
@@ -12,7 +12,7 @@
 ფანჯარა - The Browser [panel](https://docs.qgis.org/3.40/en/docs/user_manual/introduction/browser.html#resources-that-can-be-opened-run-from-the-browser) <br>
 
 დამატებითი ბმულები <br>
-სტილები [QML&SLD](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/QML_SLD/) <br>
+სტილები [QML&SLD](https://gtu.qgis.ge/GIS_SKA/Theory/QML_SLD/) <br>
 
 
 ### ⚙️ Processing Toolbox <br>
@@ -73,7 +73,7 @@
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **დიგიტალიზაცია [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/Digitization/)**
+* ვიყენებთ წინა დავალებას **დიგიტალიზაცია [task](https://gtu.qgis.ge/GIS_SKA/Lab/Digitization/)**
 
 
 * მის შიგნით შექმენით შემდეგი ქვე-საქაღალდეები:  

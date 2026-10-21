@@ -1,6 +1,6 @@
 # WEB-GIS
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 
 ### ⚙️ Processing Toolbox <br>
@@ -18,7 +18,7 @@ Google My[Maps](https://www.google.com/maps) <br>
 შაბლონი ცხელძაღლური [რუკა](https://www.google.com/maps/d/u/3/edit?hl=ka&mid=176BVE02xYafhr-6qezCRy4sHJs76xZyf&ll=42.51875523468736%2C42.56166703834641&z=7)  <br>
 შაბლონი თხევადი [გაზი](https://www.google.com/maps/d/u/3/edit?hl=ka&mid=1y3jZwVgz0WEYQWvZjlNysLex4eLLSrw&ll=42.17127030085311%2C43.86809699999997&z=9) <br>
 შაბლონი Georgia's Recycling [Map](https://www.google.com/maps/d/u/3/viewer?hl=ka&mid=18VONz4zIlS6VgcDRIAX6odQ8YGBjUQdz&ll=42.00871348204378%2C43.53747129999999&z=8) <br>
-𝐊𝐌𝐋 / 𝐊𝐌𝐙 – სივრცითი მონაცემების გაცვლის [ფორმატი](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Google/Google_formats/) <br>
+𝐊𝐌𝐋 / 𝐊𝐌𝐙 – სივრცითი მონაცემების გაცვლის [ფორმატი](https://gtu.qgis.ge/GIS_SKA/Theory/Google/Google_formats/) <br>
 მუნიციპალური სერვისების განვითარების [სააგენტო](https://ms.gov.ge/msmap/) <br>
 
 
@@ -75,7 +75,7 @@ Google My[Maps](https://www.google.com/maps) <br>
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **OGC WEB  [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/OGC_WEB/)**
+* ვიყენებთ წინა დავალებას **OGC WEB  [task](https://gtu.qgis.ge/GIS_SKA/Lab/OGC_WEB/)**
 
 
 

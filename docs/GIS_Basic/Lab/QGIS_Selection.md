@@ -1,6 +1,6 @@
 # მონიშვნები | ექსპორტი | სტატისტიკა | მეტამონაცემები
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 
 ### ⚙️ Processing Toolbox <br>
@@ -17,7 +17,7 @@
 
 
 ### დამატებითი ბმულები <br>
-თეორია - ვექტორული შრის [შენახვა](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Save_vector_layer/) <br>
+თეორია - ვექტორული შრის [შენახვა](https://gtu.qgis.ge/GIS_SKA/Theory/Save_vector_layer/) <br>
 მასალა [OSM](https://download.geofabrik.de/europe/georgia.html) <br>
 ეროვნული სივრცითი მონაცემების ინფრასტრუქტურა [NSDI](https://nsdi.gov.ge/ka) <br>
 საქართველოს კანონი ეროვნული სივრცითი მონაცემების ინფრასტრუქტურის [შესახებ](https://www.napr.gov.ge/uploads/Laws/13/638245c432a7a8aaf58118487d569635be3ccafd.pdf) <br>
@@ -79,7 +79,7 @@ OGC - [კონსორციუმი](https://www.ogc.org/) <br>
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **დიგიტალიზაცია 1 [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/Digitization1/)**
+* ვიყენებთ წინა დავალებას **დიგიტალიზაცია 1 [task](https://gtu.qgis.ge/GIS_SKA/Lab/Digitization1/)**
 
 
 

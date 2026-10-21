@@ -1,6 +1,6 @@
 # OGC WEB სერვისები
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 
 ### ⚙️ Processing Toolbox <br>
@@ -21,14 +21,14 @@ OGC - [კონსორციუმი](https://www.ogc.org/) <br>
 GeoNode - Open Source Geospatial Content Management [System](https://geonode.org/) <br>
 GeoNetwork is a catalog application to manage spatially referenced [resources](https://www.geonetwork-opensource.org/) <br>
 ეროვნული სივრცითი მონაცემების ინფრასტრუქტურა [NSDI](https://nsdi.gov.ge/ka) <br>
-პროგრამული [უზრუნველყოფა](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Software/Geoserver/) <br>
-Windows Environment და GeoServer-ის [კონფიგურაცია](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Win_ENV/) <br>
-Save Vector [Layer As](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Save_vector_layer/#vector-formats-available-in-qgis) <br>
-QGIS SLD [ფორმატი](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/QML_SLD/) <br>
-OGC [WEB](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/WEB_Services/) <br>
+პროგრამული [უზრუნველყოფა](https://gtu.qgis.ge/GIS_SKA/Software/Geoserver/) <br>
+Windows Environment და GeoServer-ის [კონფიგურაცია](https://gtu.qgis.ge/GIS_SKA/Theory/Win_ENV/) <br>
+Save Vector [Layer As](https://gtu.qgis.ge/GIS_SKA/Theory/Save_vector_layer/#vector-formats-available-in-qgis) <br>
+QGIS SLD [ფორმატი](https://gtu.qgis.ge/GIS_SKA/Theory/QML_SLD/) <br>
+OGC [WEB](https://gtu.qgis.ge/GIS_SKA/Theory/WEB_Services/) <br>
 NAPR GeoNetwork [catalogue](https://geonetwork.napr.gov.ge/geonetwork/srv/geo/catalog.search#/home) <br>
-[GeoNode](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/GeoNode/) <br>
-[GeoNetwork](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/GeoNetwork/) <br>
+[GeoNode](https://gtu.qgis.ge/GIS_SKA/Theory/GeoNode/) <br>
+[GeoNetwork](https://gtu.qgis.ge/GIS_SKA/Theory/GeoNetwork/) <br>
 
 
 
@@ -85,7 +85,7 @@ NAPR GeoNetwork [catalogue](https://geonetwork.napr.gov.ge/geonetwork/srv/geo/ca
      : [classroom.google.com](https://classroom.google.com/)
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **მონიშვნები  [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/Selection/)**
+* ვიყენებთ წინა დავალებას **მონიშვნები  [task](https://gtu.qgis.ge/GIS_SKA/Lab/Selection/)**
 
 
 

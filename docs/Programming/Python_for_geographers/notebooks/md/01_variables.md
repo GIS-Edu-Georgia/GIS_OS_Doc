@@ -6,7 +6,7 @@ icon: material/emoticon-happy
 
 წარმოდგენილი პითონის კოდები შეგიძლია გამოსცადო ღრუბლოვან-გამოთვლით პლატფორმებზე, ყოველგვარი ინსტალაციის გარეშე კომპიუტერზე.
 
-[![image](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ezdanapak/GIS_OS_Doc/blob/master/docs/Programming/Python_for_geographers/notebooks/ipynb/01_variables.ipynb)
+[![image](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GIS-Edu-Georgia/GIS_OS_Doc/blob/master/docs/Programming/Python_for_geographers/notebooks/ipynb/01_variables.ipynb)
 
 
 | **HCODE** | **NAMN1**                  | **NAMA1**                     | **NAML1**                      |

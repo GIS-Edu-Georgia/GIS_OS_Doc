@@ -8,12 +8,12 @@
 ## 0. სამუშაო ფაილები
 
 მაგალითებში გამოყენებული ფაილები ინახება დოკუმენტაციის GitHub რეპოზიტორიაში, საქაღალდეში
-[`sample_data/temperatures`](https://github.com/ezdanapak/GIS_OS_Doc/tree/main/docs/Programming/PyQGIS/sample_data/temperatures).
+[`sample_data/temperatures`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/tree/main/docs/Programming/PyQGIS/sample_data/temperatures).
 
 | ფაილი | შიგთავსი | ჩამოწერა |
 |-------|----------|----------|
-| `temperatures.csv` | `station, temp_c, date` | [ჩამოწერა](https://raw.githubusercontent.com/ezdanapak/GIS_OS_Doc/main/docs/Programming/PyQGIS/sample_data/temperatures/temperatures.csv) |
-| `exported_temperatures.csv` | `X, Y, station, temp_c, date` (EPSG:4326) | [ჩამოწერა](https://raw.githubusercontent.com/ezdanapak/GIS_OS_Doc/main/docs/Programming/PyQGIS/sample_data/temperatures/exported_temperatures.csv) |
+| `temperatures.csv` | `station, temp_c, date` | [ჩამოწერა](https://raw.githubusercontent.com/GIS-Edu-Georgia/GIS_OS_Doc/main/docs/Programming/PyQGIS/sample_data/temperatures/temperatures.csv) |
+| `exported_temperatures.csv` | `X, Y, station, temp_c, date` (EPSG:4326) | [ჩამოწერა](https://raw.githubusercontent.com/GIS-Edu-Georgia/GIS_OS_Doc/main/docs/Programming/PyQGIS/sample_data/temperatures/exported_temperatures.csv) |
 
 ფაილების ხელით ჩამოწერის ნაცვლად შეგიძლია სკრიპტმა თვითონ ჩამოწეროს ისინი `C:/qgis_data` საქაღალდეში:
 
@@ -21,7 +21,7 @@
 import os
 import urllib.request
 
-BASE = ("https://raw.githubusercontent.com/ezdanapak/GIS_OS_Doc/main/"
+BASE = ("https://raw.githubusercontent.com/GIS-Edu-Georgia/GIS_OS_Doc/main/"
         "docs/Programming/PyQGIS/sample_data/temperatures/")
 
 folder = "C:/qgis_data"

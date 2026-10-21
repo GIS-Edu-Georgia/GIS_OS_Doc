@@ -1,6 +1,6 @@
 # გლობალური პოზიციონირების სისტემები
 
-ვიდეო ჩანაწერებს ნახავ [აქ](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Videos/) <br>
+ვიდეო ჩანაწერებს ნახავ [აქ](https://gtu.qgis.ge/GIS_SKA/Videos/) <br>
 
 ოფიციალური დოკუმენტაცია <br>
 
@@ -15,9 +15,9 @@
 
 დამატებითი ბმულები <br>
 SVG [მარკერები](https://www.svgrepo.com/) <br>
-ვექტორული შრის [შენახვა](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Save_vector_layer/) <br>
-დროებითი შრე - Creating a new Temporary Scratch [Layer](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/Scratch_layer/) <br>
-სტილები [QML&SLD](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Theory/QML_SLD/) <br>
+ვექტორული შრის [შენახვა](https://gtu.qgis.ge/GIS_SKA/Theory/Save_vector_layer/) <br>
+დროებითი შრე - Creating a new Temporary Scratch [Layer](https://gtu.qgis.ge/GIS_SKA/Theory/Scratch_layer/) <br>
+სტილები [QML&SLD](https://gtu.qgis.ge/GIS_SKA/Theory/QML_SLD/) <br>
 
 დანამატები - Plugins <br>
 დანამატი [ImportPhotos](https://plugins.qgis.org/plugins/ImportPhotos/) <br>
@@ -77,7 +77,7 @@ SVG [მარკერები](https://www.svgrepo.com/) <br>
 
 
 === "I ეტაპი: საქაღალდის ორგანიზება"
-* ვიყენებთ წინა დავალებას **გეომონაცემთა ბაზები [task](https://ezdanapak.github.io/GTU-GIS/GIS_SKA/Lab/Geodatabase/)**
+* ვიყენებთ წინა დავალებას **გეომონაცემთა ბაზები [task](https://gtu.qgis.ge/GIS_SKA/Lab/Geodatabase/)**
 
 
 

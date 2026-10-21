@@ -3,7 +3,7 @@ site_url: https://osdoc.qgis.ge/
 
 # Repository
 repo_name: GIS_OS_Doc
-repo_url: https://github.com/ezdanapak/GIS_OS_Doc
+repo_url: https://github.com/GIS-Edu-Georgia/GIS_OS_Doc
 copyright: "Copyright © 2026 Giorgi Kapanadze"
 
 # Build behavior

@@ -135,4 +135,4 @@ dual-boot, ან WSL.
 
 !!! note "მასალის შესახებ"
     კონსპექტი იწერება სწავლის პროცესში. შეცდომას თუ შეამჩნევ ან რამე გაუგებარია —
-    [გამოგვიგზავნე](https://github.com/ezdanapak/GIS_OS_Doc/issues).
+    [გამოგვიგზავნე](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/issues).
