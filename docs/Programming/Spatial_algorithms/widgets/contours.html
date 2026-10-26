@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marching squares</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--ct:#7c2d12}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--ct:#fde68a}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--ct:#fde68a}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--ct:#7c2d12}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}label{color:var(--mut)}input[type=range]{vertical-align:middle;width:130px}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}code{font-family:ui-monospace,monospace}
+</style></head><body>
+<div class="bar">
+ <label>ინტერვალი <input id="iv" type="range" min="2" max="30" value="10"> <b id="ivv">10</b> მ</label>
+ <button id="bg" class="on">ფერები</button><button id="gr">ბადე</button><button id="nw">ახალი რელიეფი</button>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats"><span>დონეები: <b id="nl">0</b></span><span>მონაკვეთები: <b id="ns">0</b></span><span>კურსორი: უჯრა <b id="cell">–</b></span><span>შემთხვევა (TL TR BR BL): <code id="cs">–</code></span></div>
+<p style="color:var(--mut);margin:6px 0 0">გადაატარეთ მაუსი უჯრაზე: ჩანს მისი 4 კუთხე (შავი = დონეზე მაღალი) და რომელი წიბოები იკვეთება. ყოველი მეხუთე იზოხაზი მსხვილია.</p>
+<script>
+/*CORE*/
+const CASES={0:[],15:[],1:['LB'],14:['LB'],2:['BR'],13:['BR'],3:['LR'],12:['LR'],4:['TR'],11:['TR'],6:['TB'],9:['TB'],7:['LT'],8:['LT']};
+function caseOf(tl,tr,br,bl,lv){return(tl>=lv?8:0)+(tr>=lv?4:0)+(br>=lv?2:0)+(bl>=lv?1:0)}
+function pairsFor(cs,tl,tr,br,bl,lv){if(cs===5||cs===10){const ch=(tl+tr+bl+br)/4>=lv;return((cs===5)===ch)?['LT','BR']:['LB','TR']}return CASES[cs]}
+function ep(e,r,c,tl,tr,br,bl,lv){const L=(a,b)=>(lv-a)/(b-a);
+ if(e==='T')return[c+L(tl,tr),r];if(e==='B')return[c+L(bl,br),r+1];if(e==='L')return[c,r+L(tl,bl)];return[c+1,r+L(tr,br)]}
+function march(g,rows,cols,lv){const out=[];
+ for(let r=0;r<rows-1;r++)for(let c=0;c<cols-1;c++){const tl=g[r*cols+c],tr=g[r*cols+c+1],bl=g[(r+1)*cols+c],br=g[(r+1)*cols+c+1];
+  for(const p of pairsFor(caseOf(tl,tr,br,bl,lv),tl,tr,br,bl,lv))out.push([ep(p[0],r,c,tl,tr,br,bl,lv),ep(p[1],r,c,tl,tr,br,bl,lv)])}
+ return out}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id);
+const COLS=80,ROWS=40,CS=12.5;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let g=new Float64Array(COLS*ROWS),zmin=0,zmax=1,iv=10,showBg=true,showGrid=false,hov=null;
+function terrain(){const bumps=[];for(let i=0;i<7;i++)bumps.push([Math.random()*COLS,Math.random()*ROWS,6+Math.random()*10,(Math.random()<.25?-1:1)*(30+Math.random()*90)]);
+ zmin=1e9;zmax=-1e9;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){let z=40;for(const b of bumps)z+=b[3]*Math.exp(-((c-b[0])**2+(r-b[1])**2)/(2*b[2]*b[2]));
+  z+=3*Math.sin(c/3.1+r/4.3);g[r*COLS+c]=z;zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)}}
+function draw(){
+ ctx.clearRect(0,0,1000,500);
+ if(showBg){for(let r=0;r<ROWS-1;r++)for(let c=0;c<COLS-1;c++){const z=(g[r*COLS+c]+g[r*COLS+c+1]+g[(r+1)*COLS+c]+g[(r+1)*COLS+c+1])/4,t=(z-zmin)/(zmax-zmin);
+  ctx.fillStyle=`hsl(${160-t*160},45%,${58-t*18}%)`;ctx.globalAlpha=.55;ctx.fillRect(c*CS,r*CS,CS+.5,CS+.5)}ctx.globalAlpha=1}
+ if(showGrid){ctx.strokeStyle=css('--line');ctx.lineWidth=.5;ctx.beginPath();for(let c=0;c<COLS;c++){ctx.moveTo(c*CS,0);ctx.lineTo(c*CS,500)}for(let r=0;r<ROWS;r++){ctx.moveTo(0,r*CS);ctx.lineTo(1000,r*CS)}ctx.stroke()}
+ let ns=0,nl=0;const first=Math.ceil(zmin/iv),last=Math.floor(zmax/iv);
+ for(let k=first;k<=last;k++){const lv=k*iv,seg=march(g,ROWS,COLS,lv);nl++;ns+=seg.length;
+  ctx.strokeStyle=css('--ct');ctx.lineWidth=k%5===0?2.6:1.1;ctx.beginPath();for(const s of seg){ctx.moveTo(s[0][0]*CS,s[0][1]*CS);ctx.lineTo(s[1][0]*CS,s[1][1]*CS)}ctx.stroke()}
+ $('nl').textContent=nl;$('ns').textContent=ns;
+ if(hov){const[r,c,lv]=hov,tl=g[r*COLS+c],tr=g[r*COLS+c+1],bl=g[(r+1)*COLS+c],br=g[(r+1)*COLS+c+1],cs=caseOf(tl,tr,br,bl,lv);
+  ctx.strokeStyle=css('--hit');ctx.lineWidth=2;ctx.strokeRect(c*CS,r*CS,CS,CS);
+  [[tl,0,0],[tr,1,0],[br,1,1],[bl,0,1]].forEach(([v,dx,dy])=>{ctx.fillStyle=v>=lv?css('--fg'):css('--bg');ctx.strokeStyle=css('--fg');ctx.lineWidth=1.5;ctx.beginPath();ctx.arc((c+dx)*CS,(r+dy)*CS,4,0,7);ctx.fill();ctx.stroke()});
+  ctx.strokeStyle=css('--hit');ctx.lineWidth=3;ctx.beginPath();for(const p of pairsFor(cs,tl,tr,br,bl,lv)){const a=ep(p[0],r,c,tl,tr,br,bl,lv),b=ep(p[1],r,c,tl,tr,br,bl,lv);ctx.moveTo(a[0]*CS,a[1]*CS);ctx.lineTo(b[0]*CS,b[1]*CS)}ctx.stroke();
+  $('cell').textContent=r+','+c+' (დონე '+lv+')';$('cs').textContent=(tl>=lv?1:0)+''+(tr>=lv?1:0)+''+(br>=lv?1:0)+''+(bl>=lv?1:0)+' = '+cs}
+ else{$('cell').textContent='–';$('cs').textContent='–'}}
+cv.addEventListener('pointermove',e=>{const b=cv.getBoundingClientRect(),c=Math.floor((e.clientX-b.left)/b.width*COLS),r=Math.floor((e.clientY-b.top)/b.height*ROWS);
+ if(c<0||r<0||c>=COLS-1||r>=ROWS-1){hov=null}else{
+  // დონე: პირველი იზოხაზი, რომელიც უჯრაში გადის (თუ არა, უახლოესი)
+  const v=[g[r*COLS+c],g[r*COLS+c+1],g[(r+1)*COLS+c],g[(r+1)*COLS+c+1]],lo=Math.min(...v),hi=Math.max(...v),k=Math.ceil(lo/iv)*iv;
+  hov=[r,c,k<=hi?k:Math.round((lo+hi)/2/iv)*iv]}draw()});
+cv.addEventListener('pointerleave',()=>{hov=null;draw()});
+$('iv').oninput=e=>{iv=+e.target.value;$('ivv').textContent=iv;draw()};
+$('bg').onclick=e=>{showBg=!showBg;e.target.classList.toggle('on',showBg);draw()};
+$('gr').onclick=e=>{showGrid=!showGrid;e.target.classList.toggle('on',showGrid);draw()};
+$('nw').onclick=()=>{terrain();draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+terrain();theme();
+</script></body></html>
