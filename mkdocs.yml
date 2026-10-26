@@ -346,6 +346,7 @@ nav:
       - სივრცითი ინდექსები: Programming/Spatial_algorithms/spatial_indexes.md
       - TIN და Delaunay: Programming/Spatial_algorithms/tin_delaunay.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
+      - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md
     - სივრცული პითონი:
       - რესურსები: Programming/Spatial_python/resources.md
 
