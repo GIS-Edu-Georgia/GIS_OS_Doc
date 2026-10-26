@@ -36,7 +36,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [ტაილების პირამიდა (XYZ)](tiles_xyz.md) | Web Mercator, quadkey | ✅ |
 | [სივრცითი ინდექსები](spatial_indexes.md) | k-d tree, R-tree, Geohash | ✅ |
 | [TIN და Delaunay](tin_delaunay.md) | რელიეფის მეში | ✅ |
-| გეომეტრიული ალგორითმები | Point-in-polygon, Douglas–Peucker, Convex hull | 🔜 |
+| [გეომეტრიული ალგორითმები](geometry_algorithms.md) | Point-in-polygon, Douglas–Peucker, Convex hull | ✅ |
 | გრაფები | Dijkstra, A* | 🔜 |
 
 ## 📐 გვერდების სტრუქტურა
