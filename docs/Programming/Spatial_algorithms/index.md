@@ -35,6 +35,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [LOD და Frustum culling](lod_frustum.md) | დეტალიზაციის მართვა, ხედვის არე | ✅ |
 | [ტაილების პირამიდა (XYZ)](tiles_xyz.md) | Web Mercator, quadkey | ✅ |
 | [სივრცითი ინდექსები](spatial_indexes.md) | k-d tree, R-tree, Geohash | ✅ |
+| [ბადეები](grids_hex.md) | Z-order, Hilbert, ექვსკუთხედები (H3) | ✅ |
 | [TIN და Delaunay](tin_delaunay.md) | რელიეფის მეში | ✅ |
 | [Voronoi და Thiessen](voronoi.md) | სიახლოვის ანალიზი, Delaunay-ს ორმაგი | ✅ |
 | [კონტურები](contours.md) | Marching squares, იზოხაზები | ✅ |
