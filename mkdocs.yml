@@ -338,6 +338,9 @@ nav:
             - დავალება 5: Programming/PyQGIS/Practice/task_05.md
          - Jupyter Notebook: 
             - მოსახლეობის რაოდენობა: Programming/PyQGIS/PyQGIS_topics/jupyter/population_density_ipyleaflet.ipynb
+    - სივრცითი ალგორითმები:
+      - შესავალი: Programming/Spatial_algorithms/index.md
+      - Quadtree: Programming/Spatial_algorithms/quadtree.md
     - სივრცული პითონი:
       - რესურსები: Programming/Spatial_python/resources.md
 

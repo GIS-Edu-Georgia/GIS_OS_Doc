@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quadtree</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--hit:#e11d48;--pt:#374151;--card:#f3f4f6}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--hit:#fb7185;--pt:#cbd5e1;--card:#262a36}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--hit:#fb7185;--pt:#cbd5e1;--card:#262a36}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--hit:#e11d48;--pt:#374151;--card:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+button,select{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+label{color:var(--mut)}input[type=range]{vertical-align:middle}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;background:var(--bg);touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:16px;color:var(--mut)}.stats b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <button id="m_add" class="on">+ წერტილი</button>
+ <button id="m_rect">▭ მოძებნა</button>
+ <button id="m_nn">⌖ უახლოესი</button>
+ <button id="rnd">შემთხვევითი 200</button>
+ <button id="clr">გასუფთავება</button>
+ <label>capacity <input id="cap" type="range" min="1" max="10" value="4"> <b id="capv">4</b></label>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats">
+ <span>წერტილები: <b id="n">0</b></span>
+ <span>კვანძები: <b id="nodes">1</b></span>
+ <span>სიღრმე: <b id="dep">0</b></span>
+ <span>Quadtree-ით შემოწმებული: <b id="vq">–</b></span>
+ <span>სრული გადარჩევა: <b id="vb">–</b></span>
+ <span>ნაპოვნია: <b id="found">–</b></span>
+</div>
+<script>
+const W=1000,H=500,cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+class Node{
+ constructor(x,y,w,h,d){this.x=x;this.y=y;this.w=w;this.h=h;this.d=d;this.pts=[];this.ch=null}
+ insert(p,cap){
+  if(this.ch){return this.ch.some(c=>c.has(p)&&c.insert(p,cap))}
+  if(this.pts.length<cap||this.d>=10){this.pts.push(p);return true}
+  const hw=this.w/2,hh=this.h/2,d=this.d+1;
+  this.ch=[new Node(this.x,this.y,hw,hh,d),new Node(this.x+hw,this.y,hw,hh,d),
+           new Node(this.x,this.y+hh,hw,hh,d),new Node(this.x+hw,this.y+hh,hw,hh,d)];
+  const old=this.pts;this.pts=[];old.forEach(q=>this.insert(q,cap));return this.insert(p,cap)}
+ has(p){return p[0]>=this.x&&p[0]<=this.x+this.w&&p[1]>=this.y&&p[1]<=this.y+this.h}
+ hits(r){return !(r.x>this.x+this.w||r.x+r.w<this.x||r.y>this.y+this.h||r.y+r.h<this.y)}
+ query(r,out,st){
+  if(!this.hits(r))return;st.v++;
+  for(const p of this.pts){st.c++;if(p[0]>=r.x&&p[0]<=r.x+r.w&&p[1]>=r.y&&p[1]<=r.y+r.h)out.push(p)}
+  if(this.ch)this.ch.forEach(c=>c.query(r,out,st))}
+ d2(px,py){const dx=Math.max(this.x-px,0,px-this.x-this.w),dy=Math.max(this.y-py,0,py-this.y-this.h);return dx*dx+dy*dy}
+ nn(px,py,b,st){
+  if(this.d2(px,py)>=b.d)return;st.v++;
+  for(const p of this.pts){st.c++;const d=(p[0]-px)**2+(p[1]-py)**2;if(d<b.d){b.d=d;b.p=p}}
+  if(this.ch)[...this.ch].sort((a,c)=>a.d2(px,py)-c.d2(px,py)).forEach(c=>c.nn(px,py,b,st))}
+ count(){return 1+(this.ch?this.ch.reduce((s,c)=>s+c.count(),0):0)}
+ depth(){return this.ch?Math.max(...this.ch.map(c=>c.depth())):this.d}
+ draw(){ctx.strokeRect(this.x,this.y,this.w,this.h);if(this.ch)this.ch.forEach(c=>c.draw())}
+}
+let pts=[],root,mode='add',rect=null,nnp=null,res=null,drag=null,cap=4;
+const $=id=>document.getElementById(id);
+function build(){root=new Node(0,0,W,H,0);pts.forEach(p=>root.insert(p,cap))}
+function search(){
+ res=null;$('vq').textContent=$('vb').textContent=$('found').textContent='–';
+ if(mode==='rect'&&rect&&rect.w>2){
+  const out=[],st={v:0,c:0};root.query(rect,out,st);res={out};
+  $('vq').textContent=st.c+' წერტილი / '+st.v+' კვანძი';$('vb').textContent=pts.length+' წერტილი';$('found').textContent=out.length}
+ if(mode==='nn'&&nnp&&pts.length){
+  const b={d:Infinity,p:null},st={v:0,c:0};root.nn(nnp[0],nnp[1],b,st);res={nn:b.p};
+  $('vq').textContent=st.c+' წერტილი / '+st.v+' კვანძი';$('vb').textContent=pts.length+' წერტილი';$('found').textContent='1'}
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);ctx.lineWidth=1;ctx.strokeStyle=css('--line');root.draw();
+ ctx.fillStyle=css('--pt');pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3,0,7);ctx.fill()});
+ if(mode==='rect'&&rect){ctx.strokeStyle=css('--acc');ctx.lineWidth=2;ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)}
+ if(res&&res.out){ctx.fillStyle=css('--hit');res.out.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],5,0,7);ctx.fill()})}
+ if(res&&res.nn&&nnp){ctx.strokeStyle=css('--hit');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(nnp[0],nnp[1]);ctx.lineTo(res.nn[0],res.nn[1]);ctx.stroke();
+  ctx.fillStyle=css('--hit');ctx.beginPath();ctx.arc(res.nn[0],res.nn[1],6,0,7);ctx.fill()}
+ $('n').textContent=pts.length;$('nodes').textContent=root.count();$('dep').textContent=root.depth()}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener('pointerdown',e=>{const p=pos(e);
+ if(mode==='add'){pts.push(p);root.insert(p,cap)}
+ else if(mode==='rect'){drag=p;rect={x:p[0],y:p[1],w:0,h:0};cv.setPointerCapture(e.pointerId)}
+ else{nnp=p}
+ search();draw()});
+cv.addEventListener('pointermove',e=>{const p=pos(e);
+ if(mode==='rect'&&drag){rect={x:Math.min(drag[0],p[0]),y:Math.min(drag[1],p[1]),w:Math.abs(p[0]-drag[0]),h:Math.abs(p[1]-drag[1])};search();draw()}
+ else if(mode==='nn'){nnp=p;search();draw()}});
+cv.addEventListener('pointerup',()=>{drag=null});
+function setMode(m){mode=m;['add','rect','nn'].forEach(k=>$('m_'+k).classList.toggle('on',k===m));
+ rect=null;nnp=null;search();draw()}
+['add','rect','nn'].forEach(k=>$('m_'+k).onclick=()=>setMode(k));
+$('rnd').onclick=()=>{for(let i=0;i<200;i++){const c=Math.random()<.6?[[250,160],[700,330],[520,120]][i%3]:null;
+ pts.push(c?[Math.min(W-1,Math.max(1,c[0]+(Math.random()+Math.random()+Math.random()-1.5)*160)),Math.min(H-1,Math.max(1,c[1]+(Math.random()+Math.random()+Math.random()-1.5)*110))]:[Math.random()*W,Math.random()*H])}
+ build();search();draw()};
+$('clr').onclick=()=>{pts=[];rect=null;nnp=null;build();search();draw()};
+$('cap').oninput=e=>{cap=+e.target.value;$('capv').textContent=cap;build();search();draw()};
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',draw);
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');
+ if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+build();theme();
+</script></body></html>
