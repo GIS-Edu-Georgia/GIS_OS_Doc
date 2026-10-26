@@ -329,6 +329,13 @@ nav:
             - რელიეფი: Programming/PyQGIS/PyQGIS_topics/PyQGIS_Raster_DEM.md
             - რასტრის სტატისტიკა: Programming/PyQGIS/PyQGIS_topics/PyQGIS_Raster_Statistics.md
             - რუკის კომპოზიცია: Programming/PyQGIS/PyQGIS_topics/PyQGIS_Layout.md
+         - პრაქტიკული დავალებები:
+            - მიმოხილვა: Programming/PyQGIS/Practice/index.md
+            - დავალება 1: Programming/PyQGIS/Practice/task_01.md
+            - დავალება 2: Programming/PyQGIS/Practice/task_02.md
+            - დავალება 3: Programming/PyQGIS/Practice/task_03.md
+            - დავალება 4: Programming/PyQGIS/Practice/task_04.md
+            - დავალება 5: Programming/PyQGIS/Practice/task_05.md
          - Jupyter Notebook: 
             - მოსახლეობის რაოდენობა: Programming/PyQGIS/PyQGIS_topics/jupyter/population_density_ipyleaflet.ipynb
     - სივრცული პითონი:
