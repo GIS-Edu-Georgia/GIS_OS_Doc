@@ -32,7 +32,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | გვერდი | აღწერა | სტატუსი |
 |---|---|---|
 | [Quadtree](quadtree.md) | სივრცითი ინდექსი, ტაილების მისამართები | ✅ |
-| LOD და Frustum culling | დეტალიზაციის მართვა, ხედვის არე | 🔜 |
+| [LOD და Frustum culling](lod_frustum.md) | დეტალიზაციის მართვა, ხედვის არე | ✅ |
 | ტაილების პირამიდა (XYZ) | Web Mercator, quadkey | 🔜 |
 | R-tree, k-d tree, Geohash | სხვა ინდექსები | 🔜 |
 | TIN და Delaunay | რელიეფის მეში | 🔜 |

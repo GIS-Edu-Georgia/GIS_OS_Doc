@@ -341,6 +341,7 @@ nav:
     - სივრცითი ალგორითმები:
       - შესავალი: Programming/Spatial_algorithms/index.md
       - Quadtree: Programming/Spatial_algorithms/quadtree.md
+      - LOD და Frustum culling: Programming/Spatial_algorithms/lod_frustum.md
     - სივრცული პითონი:
       - რესურსები: Programming/Spatial_python/resources.md
 
