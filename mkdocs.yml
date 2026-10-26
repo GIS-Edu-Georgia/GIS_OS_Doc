@@ -344,6 +344,7 @@ nav:
       - LOD და Frustum culling: Programming/Spatial_algorithms/lod_frustum.md
       - ტაილების პირამიდა (XYZ): Programming/Spatial_algorithms/tiles_xyz.md
       - სივრცითი ინდექსები: Programming/Spatial_algorithms/spatial_indexes.md
+      - TIN და Delaunay: Programming/Spatial_algorithms/tin_delaunay.md
     - სივრცული პითონი:
       - რესურსები: Programming/Spatial_python/resources.md
 
