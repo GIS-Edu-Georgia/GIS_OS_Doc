@@ -345,6 +345,7 @@ nav:
       - ტაილების პირამიდა (XYZ): Programming/Spatial_algorithms/tiles_xyz.md
       - სივრცითი ინდექსები: Programming/Spatial_algorithms/spatial_indexes.md
       - TIN და Delaunay: Programming/Spatial_algorithms/tin_delaunay.md
+      - Voronoi და Thiessen: Programming/Spatial_algorithms/voronoi.md
       - კონტურები (Marching squares): Programming/Spatial_algorithms/contours.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
       - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md
