@@ -350,6 +350,7 @@ nav:
       - ინტერპოლაცია (IDW, Kriging): Programming/Spatial_algorithms/interpolation.md
       - კონტურები (Marching squares): Programming/Spatial_algorithms/contours.md
       - ხილვადობა (Viewshed): Programming/Spatial_algorithms/viewshed.md
+      - კლასტერიზაცია (DBSCAN, k-means): Programming/Spatial_algorithms/clustering.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
       - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md
       - პრაქტიკა (პროექტები): Programming/Spatial_algorithms/practice.md
