@@ -43,6 +43,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [ხილვადობა](viewshed.md) | Line of sight, Bresenham, ხედვის არე | ✅ |
 | [კლასტერიზაცია](clustering.md) | DBSCAN, k-means, ცხელი წერტილები | ✅ |
 | [გეომეტრიული ალგორითმები](geometry_algorithms.md) | Point-in-polygon, Douglas–Peucker, Convex hull | ✅ |
+| [პოლიგონების გადაკვეთა](clipping.md) | Sutherland–Hodgman, Greiner–Hormann, overlay | ✅ |
 | [გრაფები](graph_algorithms.md) | Dijkstra, A* | ✅ |
 | [პრაქტიკა](practice.md) | 4 მინი-პროექტი, რამდენიმე ალგორითმის გაერთიანებით | ✅ |
 
