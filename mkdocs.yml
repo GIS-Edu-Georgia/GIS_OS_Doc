@@ -350,6 +350,7 @@ nav:
       - კონტურები (Marching squares): Programming/Spatial_algorithms/contours.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
       - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md
+      - პრაქტიკა (პროექტები): Programming/Spatial_algorithms/practice.md
     - სივრცული პითონი:
       - რესურსები: Programming/Spatial_python/resources.md
 
