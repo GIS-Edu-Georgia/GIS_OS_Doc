@@ -41,6 +41,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [კონტურები](contours.md) | Marching squares, იზოხაზები | ✅ |
 | [გეომეტრიული ალგორითმები](geometry_algorithms.md) | Point-in-polygon, Douglas–Peucker, Convex hull | ✅ |
 | [გრაფები](graph_algorithms.md) | Dijkstra, A* | ✅ |
+| [პრაქტიკა](practice.md) | 4 მინი-პროექტი, რამდენიმე ალგორითმის გაერთიანებით | ✅ |
 
 ## 📐 გვერდების სტრუქტურა
 
