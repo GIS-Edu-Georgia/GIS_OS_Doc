@@ -347,6 +347,7 @@ nav:
       - ბადეები (Z-order, Hilbert, H3): Programming/Spatial_algorithms/grids_hex.md
       - TIN და Delaunay: Programming/Spatial_algorithms/tin_delaunay.md
       - Voronoi და Thiessen: Programming/Spatial_algorithms/voronoi.md
+      - ინტერპოლაცია (IDW, Kriging): Programming/Spatial_algorithms/interpolation.md
       - კონტურები (Marching squares): Programming/Spatial_algorithms/contours.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
       - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md

@@ -38,6 +38,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [ბადეები](grids_hex.md) | Z-order, Hilbert, ექვსკუთხედები (H3) | ✅ |
 | [TIN და Delaunay](tin_delaunay.md) | რელიეფის მეში | ✅ |
 | [Voronoi და Thiessen](voronoi.md) | სიახლოვის ანალიზი, Delaunay-ს ორმაგი | ✅ |
+| [ინტერპოლაცია](interpolation.md) | IDW, Kriging, ცდომილების შეფასება | ✅ |
 | [კონტურები](contours.md) | Marching squares, იზოხაზები | ✅ |
 | [გეომეტრიული ალგორითმები](geometry_algorithms.md) | Point-in-polygon, Douglas–Peucker, Convex hull | ✅ |
 | [გრაფები](graph_algorithms.md) | Dijkstra, A* | ✅ |
