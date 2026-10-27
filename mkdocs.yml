@@ -345,6 +345,7 @@ nav:
       - ტაილების პირამიდა (XYZ): Programming/Spatial_algorithms/tiles_xyz.md
       - სივრცითი ინდექსები: Programming/Spatial_algorithms/spatial_indexes.md
       - ბადეები (Z-order, Hilbert, H3): Programming/Spatial_algorithms/grids_hex.md
+      - გლობალური ბადეები (S2 და H3): Programming/Spatial_algorithms/s2_h3.md
       - TIN და Delaunay: Programming/Spatial_algorithms/tin_delaunay.md
       - Voronoi და Thiessen: Programming/Spatial_algorithms/voronoi.md
       - ინტერპოლაცია (IDW, Kriging): Programming/Spatial_algorithms/interpolation.md
