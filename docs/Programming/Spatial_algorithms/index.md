@@ -36,6 +36,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [ტაილების პირამიდა (XYZ)](tiles_xyz.md) | Web Mercator, quadkey | ✅ |
 | [სივრცითი ინდექსები](spatial_indexes.md) | k-d tree, R-tree, Geohash | ✅ |
 | [ბადეები](grids_hex.md) | Z-order, Hilbert, ექვსკუთხედები (H3) | ✅ |
+| [S2 და H3](s2_h3.md) | გლობალური ბადეები, უჯრის ID, დიაპაზონული ძებნა | ✅ |
 | [TIN და Delaunay](tin_delaunay.md) | რელიეფის მეში | ✅ |
 | [Voronoi და Thiessen](voronoi.md) | სიახლოვის ანალიზი, Delaunay-ს ორმაგი | ✅ |
 | [ინტერპოლაცია](interpolation.md) | IDW, Kriging, ცდომილების შეფასება | ✅ |
