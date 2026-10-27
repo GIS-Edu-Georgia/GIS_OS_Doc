@@ -2,7 +2,7 @@
 
 **საჭირო თემები:** [შრის შექმნა](../PyQGIS_topics/PyQGIS_Create_layer.md), [წაშლა](../PyQGIS_topics/PyQGIS_Obj_delete.md), [გაანგარიშებები ცხრილში](../PyQGIS_topics/PyQGIS_Calc_Attrib_Expressions.md), [ვექტორის გეოდამუშავება](../PyQGIS_topics/PyQGIS_Vector_Processing.md)
 
-**მონაცემები:** `sample_data/practice/task_01/` (`gis_osm_places_free_1`, `gis_osm_protected_areas_a_free_1`; OpenStreetMap, EPSG:4326)
+**მონაცემები:** `sample_data/practice/task_01/` (`gis_osm_places_free_1`, `gis_osm_protected_areas_a_free_1`; OpenStreetMap, EPSG:4326). ყველა OSM შრე ერთ არქივად: [`OSM_shp_PyQGIS.zip`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/osm-data-v1/OSM_shp_PyQGIS.zip) (7 შრე, 7 MB)
 
 აქ და შემდეგ ამოხსნებში გამოიყენება [ზოგადი დამხმარე კოდი](index.md#ამოხსნები).
 
