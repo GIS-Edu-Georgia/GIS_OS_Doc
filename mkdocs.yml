@@ -352,6 +352,7 @@ nav:
       - ხილვადობა (Viewshed): Programming/Spatial_algorithms/viewshed.md
       - კლასტერიზაცია (DBSCAN, k-means): Programming/Spatial_algorithms/clustering.md
       - გეომეტრიული ალგორითმები: Programming/Spatial_algorithms/geometry_algorithms.md
+      - პოლიგონების გადაკვეთა (overlay): Programming/Spatial_algorithms/clipping.md
       - გრაფები (Dijkstra, A*): Programming/Spatial_algorithms/graph_algorithms.md
       - პრაქტიკა (პროექტები): Programming/Spatial_algorithms/practice.md
     - სივრცული პითონი:
