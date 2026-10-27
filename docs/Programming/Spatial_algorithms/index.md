@@ -40,6 +40,7 @@ GIS-ის ყოველი პროგრამა, QGIS-იდან Google
 | [Voronoi და Thiessen](voronoi.md) | სიახლოვის ანალიზი, Delaunay-ს ორმაგი | ✅ |
 | [ინტერპოლაცია](interpolation.md) | IDW, Kriging, ცდომილების შეფასება | ✅ |
 | [კონტურები](contours.md) | Marching squares, იზოხაზები | ✅ |
+| [ხილვადობა](viewshed.md) | Line of sight, Bresenham, ხედვის არე | ✅ |
 | [გეომეტრიული ალგორითმები](geometry_algorithms.md) | Point-in-polygon, Douglas–Peucker, Convex hull | ✅ |
 | [გრაფები](graph_algorithms.md) | Dijkstra, A* | ✅ |
 | [პრაქტიკა](practice.md) | 4 მინი-პროექტი, რამდენიმე ალგორითმის გაერთიანებით | ✅ |
