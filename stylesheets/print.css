@@ -1,0 +1,81 @@
+/* ბეჭდვა: თითო გვერდის ღილაკი + @media print სტილები */
+
+.print-page-btn {
+  float: right;
+  cursor: pointer;
+  margin: 0.1rem 0 0.4rem 0.6rem;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--md-default-fg-color);
+  background: var(--md-default-bg-color);
+  transition: background-color 0.15s;
+}
+
+.print-page-btn:hover {
+  background: var(--md-default-fg-color--lightest);
+}
+
+@media print {
+  /* ინტერფეისის ელემენტები არ დაიბეჭდოს */
+  .md-header,
+  .md-sidebar,
+  .md-footer,
+  .md-tabs,
+  .md-search,
+  .md-top,
+  .md-content__button,
+  .print-page-btn,
+  .py-editor__toolbar,
+  .py-editor__status {
+    display: none !important;
+  }
+
+  /* შიგთავსი გაიშალოს მთელ სიგანეზე */
+  .md-main__inner,
+  .md-content,
+  .md-grid {
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .md-content__inner {
+    padding: 0 !important;
+  }
+
+  /* ჩაკეცილი ამოხსნები/დეტალები ბეჭდვისას გაიშალოს */
+  details > * {
+    display: block !important;
+  }
+
+  details {
+    break-inside: avoid;
+  }
+
+  /* კოდის უჯრები და მათი გამონატანი სრულად გამოჩნდეს */
+  .py-editor__code {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .py-editor__output--visible {
+    display: block !important;
+  }
+
+  /* ბმულები შავად, ხაზგასმის გარეშე */
+  a[href] {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  pre,
+  blockquote,
+  .admonition,
+  table,
+  img {
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>მოკლე გზა: Dijkstra და A*</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#dfe3ea;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--wall:#374151;--vis:#bfdbfe;--s:#16a34a}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#2f3443;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--wall:#9ca3af;--vis:#2b4a7a;--s:#4ade80}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#2f3443;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--wall:#9ca3af;--vis:#2b4a7a;--s:#4ade80}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#dfe3ea;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--wall:#374151;--vis:#bfdbfe;--s:#16a34a}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <button id="a_d" class="on">Dijkstra</button><button id="a_a">A*</button><button id="a_g">Greedy</button>
+ <span style="width:10px"></span>
+ <button id="t_w" class="on">კედელი</button><button id="t_s">საწყისი</button><button id="t_g">მიზანი</button>
+ <button id="terr">რელიეფი</button><button id="clr">გასუფთავება</button>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats"><span>შემოწმებული უჯრები: <b id="ex">0</b></span><span>გზის ღირებულება: <b id="cost">–</b></span><span>გზის სიგრძე: <b id="len">–</b></span></div>
+<p style="color:var(--mut);margin:6px 0 0" id="hint">გადაათრიეთ მაუსი კედლების დასახატად. „საწყისი"/„მიზანი" ღილაკის შემდეგ დააჭირეთ უჯრას. „რელიეფი" ზოგ უჯრას უფრო ძვირად (მუქი) აქცევს.</p>
+<script>
+/*CORE*/
+class Heap{constructor(){this.a=[]}get size(){return this.a.length}
+ push(k,v){const a=this.a;a.push([k,v]);let i=a.length-1;while(i>0){const p=(i-1)>>1;if(a[p][0]<=a[i][0])break;[a[p],a[i]]=[a[i],a[p]];i=p}}
+ pop(){const a=this.a,t=a[0],l=a.pop();if(a.length){a[0]=l;let i=0;for(;;){let m=i;const L=2*i+1,R=L+1;if(L<a.length&&a[L][0]<a[m][0])m=L;if(R<a.length&&a[R][0]<a[m][0])m=R;if(m===i)break;[a[m],a[i]]=[a[i],a[m]];i=m}}return t}}
+function search(cost,cols,rows,s,g,algo){
+ const idx=(r,c)=>r*cols+c,N=cols*rows,dist=new Float64Array(N).fill(Infinity),prev=new Int32Array(N).fill(-1),done=new Uint8Array(N);
+ const gr=Math.floor(g/cols),gc=g%cols;
+ const h=n=>{const dr=Math.abs(Math.floor(n/cols)-gr),dc=Math.abs(n%cols-gc);return(dr+dc)+(Math.SQRT2-2)*Math.min(dr,dc)}; // octile
+ const heap=new Heap();dist[s]=0;heap.push(0,s);let ex=0;
+ while(heap.size){const[,u]=heap.pop();if(done[u])continue;done[u]=1;ex++;if(u===g)break;
+  const r=Math.floor(u/cols),c=u%cols;
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc;if(rr<0||cc<0||rr>=rows||cc>=cols)continue;
+   const v=idx(rr,cc);if(cost[v]===0)continue;
+   if(dr&&dc&&(cost[idx(r,cc)]===0||cost[idx(rr,c)]===0))continue; // კუთხის გადაჭრა კედლის გავლით აკრძალულია
+   const nd=dist[u]+(dr&&dc?Math.SQRT2:1)*(cost[u]+cost[v])/2;
+   if(algo==='g'){if(prev[v]===-1&&v!==s){dist[v]=nd;prev[v]=u;heap.push(h(v),v)}}
+   else if(nd<dist[v]){dist[v]=nd;prev[v]=u;heap.push(algo==='a'?nd+h(v):nd,v)}}}
+ let path=null;if(done[g]){path=[g];while(path[path.length-1]!==s)path.push(prev[path[path.length-1]])}
+ let pc=0;if(path)for(let i=path.length-1;i>0;i--){const a=path[i],b=path[i-1],d=(Math.floor(a/cols)!==Math.floor(b/cols)&&a%cols!==b%cols)?Math.SQRT2:1;pc+=d*(cost[a]+cost[b])/2}
+ return{done,ex,path,pc}}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id);
+const COLS=50,ROWS=25,CS=20;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let cost=new Float64Array(COLS*ROWS).fill(1),S=12*COLS+6,G=12*COLS+COLS-7,algo='d',tool='w',down=false,erase=false;
+function run(){const r=search(cost,COLS,ROWS,S,G,algo);
+ ctx.clearRect(0,0,1000,500);
+ for(let i=0;i<cost.length;i++){const x=(i%COLS)*CS,y=Math.floor(i/COLS)*CS;
+  if(cost[i]===0){ctx.fillStyle=css('--wall');ctx.fillRect(x,y,CS,CS)}
+  else{if(cost[i]>1){ctx.fillStyle=css('--mut');ctx.globalAlpha=Math.min(.7,(cost[i]-1)/6);ctx.fillRect(x,y,CS,CS);ctx.globalAlpha=1}
+   if(r.done[i]){ctx.fillStyle=css('--vis');ctx.globalAlpha=.75;ctx.fillRect(x+1,y+1,CS-2,CS-2);ctx.globalAlpha=1}}}
+ ctx.strokeStyle=css('--line');ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<=COLS;i++){ctx.moveTo(i*CS+.5,0);ctx.lineTo(i*CS+.5,500)}for(let j=0;j<=ROWS;j++){ctx.moveTo(0,j*CS+.5);ctx.lineTo(1000,j*CS+.5)}ctx.stroke();
+ if(r.path){ctx.strokeStyle=css('--hit');ctx.lineWidth=4;ctx.lineJoin='round';ctx.beginPath();r.path.forEach((n,k)=>{const x=(n%COLS+.5)*CS,y=(Math.floor(n/COLS)+.5)*CS;k?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}
+ const dot=(n,c)=>{ctx.fillStyle=css(c);ctx.beginPath();ctx.arc((n%COLS+.5)*CS,(Math.floor(n/COLS)+.5)*CS,8,0,7);ctx.fill()};dot(S,'--s');dot(G,'--acc');
+ $('ex').textContent=r.ex;$('cost').textContent=r.path?r.pc.toFixed(1):'გზა არ არის';$('len').textContent=r.path?r.path.length+' უჯრა':'–'}
+function cell(e){const b=cv.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*COLS),r=Math.floor((e.clientY-b.top)/b.height*ROWS);return r*COLS+c}
+function apply(e){const n=cell(e);if(n<0||n>=cost.length)return;
+ if(tool==='w'){if(n===S||n===G)return;cost[n]=erase?1:0}else if(tool==='s'&&cost[n]){S=n}else if(tool==='g'&&cost[n]){G=n}run()}
+cv.addEventListener('pointerdown',e=>{down=true;cv.setPointerCapture(e.pointerId);erase=tool==='w'&&cost[cell(e)]===0;apply(e)});
+cv.addEventListener('pointermove',e=>{if(down&&tool==='w')apply(e)});cv.addEventListener('pointerup',()=>down=false);
+function sel(group,id,attr){for(const k of group)$(k).classList.toggle('on',k===id)}
+['d','a','g'].forEach(k=>$('a_'+k).onclick=()=>{algo=k;sel(['a_d','a_a','a_g'],'a_'+k);run()});
+['w','s','g'].forEach(k=>$('t_'+k).onclick=()=>{tool=k;sel(['t_w','t_s','t_g'],'t_'+k)});
+$('terr').onclick=()=>{const ph=[Math.random()*9,Math.random()*9,Math.random()*9];for(let i=0;i<cost.length;i++){if(cost[i]===0)continue;const x=i%COLS,y=Math.floor(i/COLS);
+ cost[i]=Math.max(1,Math.round(1+3+3*Math.sin(x/5+ph[0])*Math.cos(y/4+ph[1])+2*Math.sin((x+y)/7+ph[2])))}run()};
+$('clr').onclick=()=>{cost.fill(1);run()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}run()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+for(let r=3;r<22;r++)cost[r*COLS+25]=0;cost[12*COLS+25]=1; // საწყისი დაბრკოლება
+theme();
+</script></body></html>

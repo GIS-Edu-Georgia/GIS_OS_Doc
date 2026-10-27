@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>კლასტერიზაცია</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+label{display:flex;gap:6px;align-items:center;color:var(--mut)}label b{color:var(--fg);min-width:2.4em}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+.grp{display:none;flex-wrap:wrap;gap:8px 14px;align-items:center}.grp.show{display:flex}
+</style></head><body>
+<div class="bar">
+ <button id="a_db" class="on">DBSCAN</button><button id="a_km">k-means</button>
+ <span>მონაცემები:</span><button id="d_blobs" class="on">ბლობები</button><button id="d_moons">მთვარეები</button><button id="d_city">ქალაქები + ხმაური</button>
+</div>
+<div class="bar grp show" id="g_db">
+ <label>ε (რადიუსი) <input type="range" id="eps" min="8" max="80" step="1" value="30"><b id="epsv">30</b></label>
+ <label>minPts <input type="range" id="mp" min="2" max="15" step="1" value="5"><b id="mpv">5</b></label>
+</div>
+<div class="bar grp" id="g_km">
+ <label>k <input type="range" id="k" min="1" max="8" step="1" value="4"><b id="kv">4</b></label>
+ <button id="init">ახალი ცენტრები</button><button id="step">ერთი ბიჯი</button><button id="run">გაშვება</button>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats" id="s_db"><span>კლასტერები: <b id="nc">–</b></span><span>ხმაური: <b id="nn">–</b></span><span>ბირთვული წერტილები: <b id="ncore">–</b></span></div>
+<div class="stats" id="s_km" style="display:none"><span>იტერაცია: <b id="it">0</b></span><span>Inertia (Σ d²): <b id="in">–</b></span></div>
+<p style="color:var(--mut);margin:6px 0 0">DBSCAN: დიდი წერტილი ბირთვია, პატარა საზღვრის, ნაცრისფერი ✕ ხმაურია. კურსორზე ჩანს ε-წრე. k-means: ცენტრები რომბებია. სცადეთ „მთვარეები" ორივე მეთოდზე და შეადარეთ. დააჭირეთ რუკაზე წერტილის დასამატებლად.</p>
+<script>
+/*CORE*/
+function dbscan(P,eps,minPts){const n=P.length,lab=new Array(n).fill(null),core=new Array(n).fill(false),e2=eps*eps;
+ const nb=i=>{const out=[];for(let j=0;j<n;j++){const dx=P[j][0]-P[i][0],dy=P[j][1]-P[i][1];if(dx*dx+dy*dy<=e2)out.push(j)}return out};
+ let cl=-1;
+ for(let i=0;i<n;i++){if(lab[i]!==null)continue;const N=nb(i);if(N.length<minPts){lab[i]=-1;continue}
+  cl++;lab[i]=cl;core[i]=true;const q=[...N];let h=0;
+  while(h<q.length){const j=q[h++];if(lab[j]===-1)lab[j]=cl;if(lab[j]!==null)continue;lab[j]=cl;const Nj=nb(j);if(Nj.length>=minPts){core[j]=true;for(const m of Nj)q.push(m)}}}
+ return{lab,core,k:cl+1}}
+function assign(P,C){return P.map(p=>{let b=0,d=1e18;C.forEach((c,i)=>{const e=(p[0]-c[0])**2+(p[1]-c[1])**2;if(e<d){d=e;b=i}});return b})}
+function update(P,L,C){return C.map((c,i)=>{let sx=0,sy=0,n=0;P.forEach((p,j)=>{if(L[j]===i){sx+=p[0];sy+=p[1];n++}});return n?[sx/n,sy/n]:c})}
+function inertia(P,L,C){let s=0;P.forEach((p,j)=>{s+=(p[0]-C[L[j]][0])**2+(p[1]-C[L[j]][1])**2});return s}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=1000,H=500;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const DS={
+ blobs:()=>[[200,150],[760,120],[480,380],[150,390]].flatMap(([x,y])=>Array.from({length:70},()=>[x+gauss()*38,y+gauss()*38])),
+ moons:()=>Array.from({length:130},()=>{const t=Math.random()*Math.PI;return[[380+Math.cos(t)*190+gauss()*13,300-Math.sin(t)*190+gauss()*13],[570-Math.cos(t)*190+gauss()*13,200+Math.sin(t)*190+gauss()*13]]}).flat().concat(Array.from({length:20},()=>[Math.random()*W,Math.random()*H])),
+ city:()=>[[230,170,50,110],[700,140,30,80],[560,360,70,60]].flatMap(([x,y,s,n])=>Array.from({length:n},()=>[x+gauss()*s,y+gauss()*s])).concat(Array.from({length:50},()=>[Math.random()*W,Math.random()*H]))};
+let P=DS.blobs(),algo='db',res=null,C=[],L=[],iter=0,cur=null,timer=null;
+const colr=i=>`hsl(${(i*67+15)%360},70%,52%)`;
+function reinit(){const k=+$('k').value;C=[];const pool=P.slice();for(let i=0;i<k&&pool.length;i++){C.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0].slice())}L=assign(P,C);iter=0;draw()}
+function stepKm(){const C2=update(P,L,C),L2=assign(P,C2);const ch=L2.some((l,i)=>l!==L[i]);C=C2;L=L2;iter++;draw();return ch}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ if(algo==='db'){res=dbscan(P,+$('eps').value,+$('mp').value);
+  P.forEach((p,i)=>{const l=res.lab[i];if(l<0){ctx.strokeStyle=css('--mut');ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p[0]-3,p[1]-3);ctx.lineTo(p[0]+3,p[1]+3);ctx.moveTo(p[0]+3,p[1]-3);ctx.lineTo(p[0]-3,p[1]+3);ctx.stroke()}
+   else{ctx.fillStyle=colr(l);ctx.beginPath();ctx.arc(p[0],p[1],res.core[i]?5:3,0,7);ctx.fill()}});
+  if(cur){ctx.strokeStyle=css('--acc');ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(cur[0],cur[1],+$('eps').value,0,7);ctx.stroke();ctx.setLineDash([])}
+  $('nc').textContent=res.k;$('nn').textContent=res.lab.filter(l=>l<0).length;$('ncore').textContent=res.core.filter(Boolean).length}
+ else{if(L.length!==P.length)L=assign(P,C);
+  P.forEach((p,i)=>{ctx.fillStyle=colr(L[i]);ctx.beginPath();ctx.arc(p[0],p[1],3.5,0,7);ctx.fill()});
+  C.forEach((c,i)=>{ctx.fillStyle=colr(i);ctx.strokeStyle=css('--fg');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c[0],c[1]-10);ctx.lineTo(c[0]+8,c[1]);ctx.lineTo(c[0],c[1]+10);ctx.lineTo(c[0]-8,c[1]);ctx.closePath();ctx.fill();ctx.stroke()});
+  $('it').textContent=iter;$('in').textContent=C.length?Math.round(inertia(P,L,C)).toLocaleString('en'):'–'}
+ $('epsv').textContent=$('eps').value;$('mpv').textContent=$('mp').value;$('kv').textContent=$('k').value}
+function setAlgo(a){algo=a;$('a_db').classList.toggle('on',a==='db');$('a_km').classList.toggle('on',a==='km');
+ $('g_db').classList.toggle('show',a==='db');$('g_km').classList.toggle('show',a==='km');$('s_db').style.display=a==='db'?'flex':'none';$('s_km').style.display=a==='km'?'flex':'none';
+ clearInterval(timer);if(a==='km')reinit();else draw()}
+$('a_db').onclick=()=>setAlgo('db');$('a_km').onclick=()=>setAlgo('km');
+for(const k of['blobs','moons','city'])$('d_'+k).onclick=()=>{P=DS[k]();for(const j of['blobs','moons','city'])$('d_'+j).classList.toggle('on',j===k);if(algo==='km')reinit();else draw()};
+$('eps').oninput=draw;$('mp').oninput=draw;$('k').oninput=()=>{reinit()};
+$('init').onclick=reinit;$('step').onclick=stepKm;
+$('run').onclick=()=>{clearInterval(timer);timer=setInterval(()=>{if(!stepKm())clearInterval(timer)},350)};
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener('pointerdown',e=>{P.push(pos(e));if(algo==='km')L=assign(P,C);draw()});
+cv.addEventListener('pointermove',e=>{cur=pos(e);if(algo==='db')draw()});cv.addEventListener('pointerleave',()=>{cur=null;if(algo==='db')draw()});
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

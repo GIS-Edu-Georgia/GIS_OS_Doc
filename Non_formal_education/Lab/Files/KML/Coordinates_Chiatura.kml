@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>Coordinates_Chiatura.kml</name>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Folder>
+		<name>Coordinates_Chiatura</name>
+		<open>1</open>
+		<Placemark>
+			<name>პირველი საჯარო სკოლა</name>
+			<LookAt>
+				<longitude>43.28118056974898</longitude>
+				<latitude>42.2901236373396</latitude>
+				<altitude>0</altitude>
+				<heading>-13.23656698405535</heading>
+				<tilt>22.50980043538362</tilt>
+				<range>508.6890351410831</range>
+				<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+			</LookAt>
+			<styleUrl>#m_ylw-pushpin</styleUrl>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>43.2824010897049,42.28991176542581,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>ჭიათურის კულტურის ცენტრი</name>
+			<LookAt>
+				<longitude>43.28553648920958</longitude>
+				<latitude>42.28963403105391</latitude>
+				<altitude>0</altitude>
+				<heading>0.001030406478148166</heading>
+				<tilt>19.39292908672636</tilt>
+				<range>437.4576301366128</range>
+				<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+			</LookAt>
+			<styleUrl>#m_ylw-pushpin</styleUrl>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>43.28683333333333,42.28976666666667,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>ჭიათურის მთავარი საბაგირო</name>
+			<LookAt>
+				<longitude>43.28532258032243</longitude>
+				<latitude>42.28991148971691</latitude>
+				<altitude>0</altitude>
+				<heading>3.887523927099636e-05</heading>
+				<tilt>11.51687783055972</tilt>
+				<range>454.1099977206155</range>
+				<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+			</LookAt>
+			<styleUrl>#m_ylw-pushpin</styleUrl>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>43.2856,42.28985,0</coordinates>
+			</Point>
+		</Placemark>
+		<Placemark>
+			<name>ჭიათურის აკაკი წერეთლის სახელობის სახელმწიფო დრამატული თეატრი</name>
+			<LookAt>
+				<longitude>43.28487445157648</longitude>
+				<latitude>42.28835945927497</latitude>
+				<altitude>0</altitude>
+				<heading>-0.0002027005068548658</heading>
+				<tilt>15.05467889279729</tilt>
+				<range>838.3146776772458</range>
+				<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+			</LookAt>
+			<styleUrl>#m_ylw-pushpin</styleUrl>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>43.28484597067148,42.28694376701045,0</coordinates>
+			</Point>
+		</Placemark>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.6.10201"></atom:link>
+	</Folder>
+</Document>
+</kml>

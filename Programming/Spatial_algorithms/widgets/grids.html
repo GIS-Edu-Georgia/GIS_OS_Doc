@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Z-order, Hilbert და ექვსკუთხედები</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}label{color:var(--mut)}input[type=range]{vertical-align:middle;width:110px}
+canvas{width:100%;max-width:640px;aspect-ratio:1/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}.hide{display:none}
+</style></head><body>
+<div class="bar">
+ <button id="mz" class="on">Z-order</button><button id="mh">Hilbert</button><button id="mx">ექვსკუთხედები</button>
+ <span id="c1"><label>დონე <input id="k" type="range" min="1" max="5" value="3"> <b id="kv">3</b></label></span>
+ <span id="c2" class="hide"><label>რგოლი <input id="ring" type="range" min="0" max="5" value="2"> <b id="ringv">2</b></label></span>
+</div>
+<canvas id="c" width="640" height="640"></canvas>
+<div class="stats" id="s1"><span>უჯრა: <b id="cell">–</b></span><span>ინდექსი: <b id="idx">–</b></span><span>მეზობელი ინდექსი = მეზობელი უჯრა: <b id="adj">–</b></span><span>არჩეული ფართობი → დიაპაზონები: <b id="rg">–</b></span></div>
+<div class="stats hide" id="s2"><span>უჯრა (q, r): <b id="hq">–</b></span><span>მანძილი ცენტრიდან: <b id="hd">–</b></span><span>უჯრები რგოლში: <b id="hn">–</b></span></div>
+<p style="color:var(--mut);margin:6px 0 0" id="hint"></p>
+<script>
+/*CORE*/
+function morton(x,y,bits){let d=0;for(let i=0;i<bits;i++){d+=((x>>i)&1)*2**(2*i)+((y>>i)&1)*2**(2*i+1)}return d}
+function hilbert(n,x,y){let d=0;for(let s=n>>1;s>0;s>>=1){const rx=(x&s)?1:0,ry=(y&s)?1:0;d+=s*s*((3*rx)^ry);
+ if(ry===0){if(rx===1){x=s-1-x;y=s-1-y}[x,y]=[y,x]}}return d}
+function d2xy(n,d){let x=0,y=0;for(let s=1;s<n;s*=2){const rx=1&(d>>1),ry=1&(d^rx);if(ry===0){if(rx===1){x=s-1-x;y=s-1-y}[x,y]=[y,x]}x+=s*rx;y+=s*ry;d>>=2}return[x,y]}
+function ranges(rect,idx){const ids=[];for(let x=rect[0];x<=rect[2];x++)for(let y=rect[1];y<=rect[3];y++)ids.push(idx(x,y));ids.sort((a,b)=>a-b);let r=1;for(let i=1;i<ids.length;i++)if(ids[i]!==ids[i-1]+1)r++;return r}
+function hexRound(fq,fr){const fs=-fq-fr;let q=Math.round(fq),r=Math.round(fr),s=Math.round(fs);const dq=Math.abs(q-fq),dr=Math.abs(r-fr),ds=Math.abs(s-fs);
+ if(dq>dr&&dq>ds)q=-r-s;else if(dr>ds)r=-q-s;return[q,r]}
+function pixelToHex(x,y,size){return hexRound((Math.sqrt(3)/3*x-y/3)/size,(2/3*y)/size)}
+function hexToPixel(q,r,size){return[size*Math.sqrt(3)*(q+r/2),size*1.5*r]}
+function hexDist(a,b){const dq=a[0]-b[0],dr=a[1]-b[1];return(Math.abs(dq)+Math.abs(dr)+Math.abs(dq+dr))/2}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=640;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let mode='z',k=3,ring=2,hov=null,sel=null,drag=null,origin=[0,0];
+const HS=22;
+function idxf(){const n=2**k;return mode==='z'?(x,y)=>morton(x,y,k):(x,y)=>hilbert(n,x,y)}
+function drawCurve(){const n=2**k,cs=W/n,f=idxf(),pos=new Array(n*n);
+ for(let x=0;x<n;x++)for(let y=0;y<n;y++)pos[f(x,y)]=[x,y];
+ ctx.strokeStyle=css('--line');ctx.lineWidth=1;for(let i=0;i<=n;i++){ctx.beginPath();ctx.moveTo(i*cs,0);ctx.lineTo(i*cs,W);ctx.moveTo(0,i*cs);ctx.lineTo(W,i*cs);ctx.stroke()}
+ if(sel){const[a,b,c,d]=sel;ctx.fillStyle=css('--acc');ctx.globalAlpha=.25;ctx.fillRect(a*cs,b*cs,(c-a+1)*cs,(d-b+1)*cs);ctx.globalAlpha=1}
+ for(let i=0;i<pos.length-1;i++){const p=pos[i],q=pos[i+1];ctx.strokeStyle=`hsl(${i/pos.length*280},70%,50%)`;ctx.lineWidth=n>16?1.5:3;
+  ctx.beginPath();ctx.moveTo((p[0]+.5)*cs,(p[1]+.5)*cs);ctx.lineTo((q[0]+.5)*cs,(q[1]+.5)*cs);ctx.stroke()}
+ let adj=0;for(let i=0;i<pos.length-1;i++)if(Math.abs(pos[i][0]-pos[i+1][0])+Math.abs(pos[i][1]-pos[i+1][1])===1)adj++;
+ $('adj').textContent=adj+' / '+(pos.length-1);
+ if(hov&&hov[0]<n&&hov[1]<n){ctx.strokeStyle=css('--hit');ctx.lineWidth=3;ctx.strokeRect(hov[0]*cs,hov[1]*cs,cs,cs);$('cell').textContent=hov.join(', ');$('idx').textContent=f(hov[0],hov[1])}else{$('cell').textContent=$('idx').textContent='–'}
+ $('rg').textContent=sel?(((sel[2]-sel[0]+1)*(sel[3]-sel[1]+1))+' უჯრა → '+ranges(sel,f)+' დიაპაზონი'):'გადაათრიეთ მართკუთხედი'}
+function hexPoly(cx,cy,s){ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/180*(60*i-30);const x=cx+s*Math.cos(a),y=cy+s*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath()}
+function drawHex(){const cx=W/2,cy=W/2;
+ for(let q=-14;q<=14;q++)for(let r=-14;r<=14;r++){const[px,py]=hexToPixel(q,r,HS),x=cx+px,y=cy+py;if(x<-HS||y<-HS||x>W+HS||y>W+HS)continue;
+  const d=hexDist([q,r],origin),on=hov&&d>0&&hexDist([q,r],hov)===0;hexPoly(x,y,HS-1);
+  if(hov){const dh=hexDist([q,r],origin);if(dh===ring||(ring===0&&dh===0)){ctx.fillStyle=css('--hit');ctx.globalAlpha=.4;ctx.fill();ctx.globalAlpha=1}}
+  ctx.strokeStyle=css('--line');ctx.lineWidth=1;ctx.stroke()}
+ const[ox,oy]=hexToPixel(origin[0],origin[1],HS);hexPoly(cx+ox,cy+oy,HS-1);ctx.fillStyle=css('--acc');ctx.globalAlpha=.5;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=css('--acc');ctx.lineWidth=2.5;ctx.stroke();
+ if(hov){const[hx,hy]=hexToPixel(hov[0],hov[1],HS);hexPoly(cx+hx,cy+hy,HS-1);ctx.strokeStyle=css('--fg');ctx.lineWidth=3;ctx.stroke();$('hq').textContent=hov.join(', ');$('hd').textContent=hexDist(hov,origin)}else{$('hq').textContent=$('hd').textContent='–'}
+ $('hn').textContent=ring===0?1:6*ring}
+function draw(){ctx.clearRect(0,0,W,W);mode==='x'?drawHex():drawCurve()}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*W/r.height]}
+function cellAt(p){const n=2**k;return[Math.min(n-1,Math.floor(p[0]/(W/n))),Math.min(n-1,Math.floor(p[1]/(W/n)))]}
+cv.addEventListener('pointerdown',e=>{const p=pos(e);if(mode==='x'){origin=pixelToHex(p[0]-W/2,p[1]-W/2,HS);draw();return}drag=cellAt(p);sel=[...drag,...drag];cv.setPointerCapture(e.pointerId);draw()});
+cv.addEventListener('pointermove',e=>{const p=pos(e);if(mode==='x'){hov=pixelToHex(p[0]-W/2,p[1]-W/2,HS)}else{hov=cellAt(p);if(drag){const c=hov;sel=[Math.min(drag[0],c[0]),Math.min(drag[1],c[1]),Math.max(drag[0],c[0]),Math.max(drag[1],c[1])]}}draw()});
+cv.addEventListener('pointerup',()=>drag=null);cv.addEventListener('pointerleave',()=>{hov=null;draw()});
+const hints={z:'Z-order: ინდექსი x და y ბიტების გადაჯვარედინებაა. მრუდი ხშირად "ხტება". გადაათრიეთ მართკუთხედი და ნახეთ, რამდენ უწყვეტ დიაპაზონად ვიღებთ მას.',h:'Hilbert: მეზობელი ინდექსები ყოველთვის მეზობელი უჯრებია (შეამოწმეთ მრიცხველი). იგივე მართკუთხედისთვის ჩვეულებრივ ნაკლები დიაპაზონი გვჭირდება.',x:'ექვსკუთხედი: ყველა 6 მეზობელი ერთნაირი მანძილითაა. დააჭირეთ უჯრას ცენტრად, სლაიდერით კი რგოლის რადიუსი აირჩიეთ.'};
+function setMode(m){mode=m;hov=null;sel=null;['z','h','x'].forEach(i=>$('m'+i).classList.toggle('on',i===m));
+ $('s1').classList.toggle('hide',m==='x');$('s2').classList.toggle('hide',m!=='x');$('c1').classList.toggle('hide',m==='x');$('c2').classList.toggle('hide',m!=='x');$('hint').textContent=hints[m];draw()}
+['z','h','x'].forEach(i=>$('m'+i).onclick=()=>setMode(i));
+$('k').oninput=e=>{k=+e.target.value;$('kv').textContent=k;sel=null;hov=null;draw()};
+$('ring').oninput=e=>{ring=+e.target.value;$('ringv').textContent=ring;draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+setMode('z');theme();
+</script></body></html>
