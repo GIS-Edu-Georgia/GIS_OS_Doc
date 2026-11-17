@@ -407,6 +407,83 @@ nav:
         - ღრუბლოვანი გამოთვლები GIS-ში: Dev_ops/Cloud/cloud-computing-gis.md
       - 'სხვა':
         - curl: Dev_ops/Other/curl.md
+      - 'სასწავლო ტრეკები': Dev_ops/Tracks.md
+      - 'ტრეკი A: DevOps საფუძვლები (Ubuntu / Docker)':
+        - 'მთავარი': Dev_ops/Fundamentals/index.md
+        - 'შესავალი და გარემო':
+          - 'რესურსები და სერტიფიკაციები': Dev_ops/Fundamentals/resources.md
+          - 'საქაღალდე': Dev_ops/Fundamentals/setup/folder.md
+          - 'Virtualbox ინსტალაცია': Dev_ops/Fundamentals/setup/setup-virtualbox.md
+          - 'Ubuntu ინსტალაცია': Dev_ops/Fundamentals/setup/setup-ubuntu.md
+          - 'MobaXterm ინსტალაცია': Dev_ops/Fundamentals/setup/setup-mobaxterm.md
+          - 'Ubuntu Recovery ინსტალაცია': Dev_ops/Fundamentals/setup/setup-recovery-ubuntu.md
+          - 'ტელეფონიდან წვდომა (Tailscale)': Dev_ops/Fundamentals/setup/phone-access.md
+          - 'მდგომარეობა': Dev_ops/Fundamentals/tasks/task.md
+          - 'Virtual Machine': Dev_ops/Fundamentals/tasks/task1.md
+        - 'Linux':
+          - 'Academy (მთავარი)': Dev_ops/Fundamentals/academy/index.md
+          - 'Linux მოდული (მთავარი)': Dev_ops/Fundamentals/academy/linux/index.md
+          - 'Linux საფუძვლები': Dev_ops/Fundamentals/academy/linux/fundamentals.md
+          - 'ფაილური სისტემა': Dev_ops/Fundamentals/academy/linux/filesystem.md
+          - 'უფლებები': Dev_ops/Fundamentals/academy/linux/permissions.md
+          - 'მომხმარებლები და ჯგუფები': Dev_ops/Fundamentals/academy/linux/users-groups.md
+          - 'პროცესები': Dev_ops/Fundamentals/academy/linux/processes.md
+          - 'პაკეტების მართვა': Dev_ops/Fundamentals/academy/linux/package-management.md
+          - 'ფაილური სისტემის იერარქია (FHS)': Dev_ops/Fundamentals/linux/filesystem-hierarchy.md
+          - 'Linux Cheat Sheet': Dev_ops/Fundamentals/linux/cheatsheet.md
+          - 'System Update': Dev_ops/Fundamentals/tasks/task5.md
+          - 'User and Permission Management': Dev_ops/Fundamentals/tasks/task6.md
+        - 'ქსელი და უსაფრთხოება':
+          - 'Network Setup': Dev_ops/Fundamentals/tasks/task2.md
+          - 'Static IP Configuration': Dev_ops/Fundamentals/tasks/task3.md
+          - 'SSH Configuration': Dev_ops/Fundamentals/tasks/task4.md
+          - 'Firewall Setup': Dev_ops/Fundamentals/tasks/task7.md
+          - 'Network Diagnostics': Dev_ops/Fundamentals/tasks/task22.md
+          - 'Security Audit': Dev_ops/Fundamentals/tasks/task23.md
+        - 'Bash და ავტომატიზაცია':
+          - 'Automated Backup Script': Dev_ops/Fundamentals/tasks/task11.md
+          - 'Cron Automation': Dev_ops/Fundamentals/tasks/task12.md
+        - 'Git':
+          - 'Git Repository Setup': Dev_ops/Fundamentals/tasks/task18.md
+        - 'Web სერვერი და ბაზა':
+          - 'Web Server Installation': Dev_ops/Fundamentals/tasks/task8.md
+          - 'Custom Website Deploy': Dev_ops/Fundamentals/tasks/task9.md
+          - 'Database Installation': Dev_ops/Fundamentals/tasks/task10.md
+          - 'Reverse Proxy Configuration': Dev_ops/Fundamentals/tasks/task16.md
+          - 'SSL Certificate': Dev_ops/Fundamentals/tasks/task17.md
+        - 'Docker':
+          - 'Docker Installation': Dev_ops/Fundamentals/tasks/task14.md
+          - 'Containerized Application': Dev_ops/Fundamentals/tasks/task15.md
+        - 'CI/CD':
+          - 'Deployment Script': Dev_ops/Fundamentals/tasks/task19.md
+        - 'მონიტორინგი და ლოგები':
+          - 'Log Monitoring': Dev_ops/Fundamentals/tasks/task13.md
+          - 'System Resource Monitoring': Dev_ops/Fundamentals/tasks/task20.md
+          - 'Disk Space Management': Dev_ops/Fundamentals/tasks/task21.md
+        - 'Backup და აღდგენა':
+          - 'Disaster Recovery Test': Dev_ops/Fundamentals/tasks/task24.md
+        - 'დასკვნითი ამოცანები':
+          - 'Performance Optimization': Dev_ops/Fundamentals/tasks/task25.md
+          - 'Documentation': Dev_ops/Fundamentals/tasks/task26.md
+          - 'Final Presentation': Dev_ops/Fundamentals/tasks/task27.md
+        - 'Production არქიტექტურა':
+          - 'Production (მთავარი)': Dev_ops/Fundamentals/production/index.md
+          - 'არქიტექტურა': Dev_ops/Fundamentals/production/architecture.md
+          - 'Linux სერვერი': Dev_ops/Fundamentals/production/linux-server.md
+          - 'ქსელი': Dev_ops/Fundamentals/production/networking.md
+          - 'უსაფრთხოება': Dev_ops/Fundamentals/production/security.md
+          - 'Docker ინფრასტრუქტურა': Dev_ops/Fundamentals/production/docker-infrastructure.md
+          - 'Nginx': Dev_ops/Fundamentals/production/nginx.md
+          - 'CI/CD': Dev_ops/Fundamentals/production/cicd.md
+          - 'მონიტორინგი': Dev_ops/Fundamentals/production/monitoring.md
+          - 'ლოგირება': Dev_ops/Fundamentals/production/logging.md
+          - 'Backup და აღდგენა': Dev_ops/Fundamentals/production/backup-recovery.md
+          - 'Disaster Recovery': Dev_ops/Fundamentals/production/disaster-recovery.md
+        - 'ქვიზები':
+          - 'DevOps ქვიზები': Dev_ops/Fundamentals/quiz.md
+        - 'ცნობარი':
+          - 'ბრძანებების ცნობარი': Dev_ops/Fundamentals/commands.md
+          - 'პრობლემების ცნობარი': Dev_ops/Fundamentals/troubleshooting.md
   - მონ.ბაზები:
       - 'PostgreSQL':
         - 'რესურსები': './Programming/Database/PostgreSQL/resources.md'
