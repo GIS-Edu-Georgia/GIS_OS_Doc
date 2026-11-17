@@ -158,3 +158,43 @@ test("devops data: engine renders every devops subject without error", async () 
     assert.ok(byClass(hh.root, "qh-opt").length >= 2, subjects[i].id);
   }
 });
+
+// ---- Quiz hub / DevOps page wiring ----
+function subjectsAttr(mdFile) {
+  const m = fs.readFileSync(mdFile, "utf8").match(/data-subjects="([^"]+)"/);
+  assert.ok(m, "data-subjects not found in " + mdFile);
+  return m[1].split(",").map((x) => x.trim()).filter(Boolean);
+}
+
+test("Quiz hub: original subjects unchanged and first; every referenced data file exists", () => {
+  const hub = subjectsAttr(path.join(ROOT, "docs", "Quiz", "index.md"));
+  assert.deepStrictEqual(hub.slice(0, 3), ["gis", "pyqgis", "cpp"]);
+  assert.deepStrictEqual(hub.slice(3), DEVOPS_IDS.map((n) => "devops-" + n));
+  assert.strictEqual(new Set(hub).size, hub.length, "no duplicate subject ids");
+  for (const id of hub) assert.ok(fs.existsSync(path.join(DATA, id + ".js")), "missing data file for " + id);
+  // the id declared inside each file matches its file name
+  const files = hub.map((id) => path.join(DATA, id + ".js"));
+  loadSubjects(files).forEach((s, i) => assert.strictEqual(s.id, hub[i]));
+});
+
+test("Quiz hub: the DevOps page references the same devops subjects", () => {
+  const page = subjectsAttr(path.join(ROOT, "docs", "Dev_ops", "Fundamentals", "quiz.md"));
+  assert.deepStrictEqual(page, DEVOPS_IDS.map((n) => "devops-" + n));
+});
+
+test("Quiz hub: all 13 subjects render as cards; existing ones keep working in the same hub", async () => {
+  const all = loadSubjects([...EXISTING, ...DEVOPS]);
+  const h = await boot(NEW, all);
+  assert.strictEqual(byClass(h.root, "qh-card").length, 13);
+  // first existing subject (gis) still plays through with the new engine inside the combined hub
+  const a = await drive(NEW, loadSubjects([...EXISTING, ...DEVOPS]));
+  assert.ok(a.snaps.length > 5);
+});
+
+test("Quiz hub: a pre-existing saved session/progress (old localStorage state) still loads", async () => {
+  const legacy = await drive(LEGACY, loadSubjects([EXISTING[0]]));
+  const saved = legacy.h.store.get("gisosdoc:quizhub:v1");
+  const h = await boot(NEW, loadSubjects([...EXISTING, ...DEVOPS]), { storage: { "gisosdoc:quizhub:v1": saved } });
+  const progressBadges = byClass(h.root, "qh-meta").map((m) => textOf(m));
+  assert.ok(progressBadges.some((t) => /1\/\d+/.test(t)), "old progress for gis is shown: " + progressBadges[0]);
+});
