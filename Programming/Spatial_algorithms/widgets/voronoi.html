@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voronoi და Thiessen</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <button id="rnd">შემთხვევითი 12</button><button id="clr">გასუფთავება</button>
+ <button id="dl">Delaunay</button><button id="cv_">შემოხაზული წრე</button><button id="va" class="on">მნიშვნელობები</button>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats">
+ <span>საიტები: <b id="n">0</b></span><span>უჯრის ფართობი (კურსორი): <b id="ar">–</b></span>
+ <span>უბრალო საშუალო: <b id="m1">–</b></span><span>ფართობით შეწონილი: <b id="m2">–</b></span>
+</div>
+<p style="color:var(--mut);margin:6px 0 0">დააჭირეთ საიტის დასამატებლად. ფერი და რიცხვი სადგურზე გაზომილი მნიშვნელობაა (მაგ. ნალექი). ჩართეთ Delaunay: წიბოები ზუსტად იმ უჯრებს აერთებს, რომლებიც ერთმანეთს ეხება.</p>
+<script>
+/*CORE*/
+function clipHP(poly,a,b,c){const out=[],n=poly.length;
+ for(let i=0;i<n;i++){const p=poly[i],q=poly[(i+1)%n],fp=a*p[0]+b*p[1]-c,fq=a*q[0]+b*q[1]-c;
+  if(fp<=0)out.push(p);if((fp<0&&fq>0)||(fq<0&&fp>0)){const t=fp/(fp-fq);out.push([p[0]+t*(q[0]-p[0]),p[1]+t*(q[1]-p[1])])}}return out}
+function cells(S,bb){return S.map((s,i)=>{let cell=[[bb[0],bb[1]],[bb[2],bb[1]],[bb[2],bb[3]],[bb[0],bb[3]]];
+ for(let j=0;j<S.length&&cell.length;j++){if(i===j)continue;const t=S[j];
+  cell=clipHP(cell,2*(t[0]-s[0]),2*(t[1]-s[1]),t[0]*t[0]+t[1]*t[1]-s[0]*s[0]-s[1]*s[1])}return cell})}
+function area(p){let s=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1]}return Math.abs(s/2)}
+function circ(a,b,c){const d=2*(a[0]*(b[1]-c[1])+b[0]*(c[1]-a[1])+c[0]*(a[1]-b[1]));if(d===0)return null;
+ const a2=a[0]*a[0]+a[1]*a[1],b2=b[0]*b[0]+b[1]*b[1],c2=c[0]*c[0]+c[1]*c[1];
+ const ux=(a2*(b[1]-c[1])+b2*(c[1]-a[1])+c2*(a[1]-b[1]))/d,uy=(a2*(c[0]-b[0])+b2*(a[0]-c[0])+c2*(b[0]-a[0]))/d;
+ return[ux,uy,(a[0]-ux)**2+(a[1]-uy)**2]}
+function delaunay(P){const n=P.length;if(n<3)return[];
+ let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;for(const p of P){mnx=Math.min(mnx,p[0]);mxx=Math.max(mxx,p[0]);mny=Math.min(mny,p[1]);mxy=Math.max(mxy,p[1])}
+ const mx=(mnx+mxx)/2,my=(mny+mxy)/2,d=Math.max(mxx-mnx,mxy-mny)*1000||1,pts=[...P,[mx-d,my-d],[mx,my+d],[mx+d,my-d]];
+ let tris=[{v:[n,n+1,n+2],c:circ(pts[n],pts[n+1],pts[n+2])}];
+ for(let i=0;i<n;i++){const[px,py]=pts[i],bad=[],keep=[];for(const t of tris)((px-t.c[0])**2+(py-t.c[1])**2<t.c[2]?bad:keep).push(t);
+  const ed=new Map();for(const t of bad){const v=t.v;for(const[a,b]of[[v[0],v[1]],[v[1],v[2]],[v[2],v[0]]]){const k=a<b?a+','+b:b+','+a;ed.set(k,(ed.get(k)||0)+1)}}
+  for(const[k,c]of ed){if(c!==1)continue;const[a,b]=k.split(',').map(Number),cc=circ(pts[a],pts[b],pts[i]);if(cc)keep.push({v:[a,b,i],c:cc})}tris=keep}
+ return tris.filter(t=>Math.max(...t.v)<n)}
+function value(x,y){return 20+16*Math.sin(x/170)*Math.cos(y/110)+10*Math.sin((x+y)/260)}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=1000,H=500,BB=[0,0,W,H];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let S=[],V=[],C=[],T=[],cur=null,showDl=false,showCc=false,showVal=true;
+const col=v=>`hsl(${210-(v-8)*5},55%,${62}%)`;
+function rebuild(){C=cells(S,BB);T=S.length>=3?delaunay(S):[]}
+function add(p){S.push(p);V.push(value(p[0],p[1]))}
+function nearest(p){let b=-1,d=1e18;S.forEach((s,i)=>{const e=(s[0]-p[0])**2+(s[1]-p[1])**2;if(e<d){d=e;b=i}});return b}
+function draw(){ctx.clearRect(0,0,W,H);
+ C.forEach((cell,i)=>{if(!cell.length)return;ctx.beginPath();cell.forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+  ctx.fillStyle=showVal?col(V[i]):css('--card');ctx.globalAlpha=showVal?.75:1;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=css('--bg');ctx.lineWidth=2;ctx.stroke()});
+ if(cur&&S.length){const i=nearest(cur);ctx.beginPath();C[i].forEach((p,k)=>k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.strokeStyle=css('--hit');ctx.lineWidth=3;ctx.stroke();$('ar').textContent=Math.round(area(C[i])).toLocaleString('en')+' px²'}else $('ar').textContent='–';
+ if(showCc)T.forEach(t=>{ctx.strokeStyle=css('--mut');ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(t.c[0],t.c[1],Math.sqrt(t.c[2]),0,7);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=css('--hit');ctx.beginPath();ctx.arc(t.c[0],t.c[1],3,0,7);ctx.fill()});
+ if(showDl){ctx.strokeStyle=css('--acc');ctx.lineWidth=1.5;ctx.beginPath();T.forEach(t=>{const[a,b,c]=t.v.map(i=>S[i]);ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.closePath()});ctx.stroke()}
+ S.forEach((s,i)=>{ctx.fillStyle=css('--fg');ctx.beginPath();ctx.arc(s[0],s[1],4,0,7);ctx.fill();
+  if(showVal){ctx.font='12px system-ui';ctx.fillStyle=css('--fg');ctx.fillText(V[i].toFixed(1),s[0]+7,s[1]-6)}});
+ $('n').textContent=S.length;
+ if(S.length){const ar=C.map(area),tot=ar.reduce((a,b)=>a+b,0);$('m1').textContent=(V.reduce((a,b)=>a+b,0)/V.length).toFixed(2);$('m2').textContent=(V.reduce((a,b,i)=>a+b*ar[i],0)/tot).toFixed(2)}else $('m1').textContent=$('m2').textContent='–'}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener('pointerdown',e=>{add(pos(e));rebuild();draw()});
+cv.addEventListener('pointermove',e=>{cur=pos(e);draw()});cv.addEventListener('pointerleave',()=>{cur=null;draw()});
+$('rnd').onclick=()=>{for(let i=0;i<12;i++)add([30+Math.random()*(W-60),30+Math.random()*(H-60)]);rebuild();draw()};
+$('clr').onclick=()=>{S=[];V=[];C=[];T=[];draw()};
+function tg(id,fn){$(id).onclick=e=>{const v=fn();e.target.classList.toggle('on',v);draw()}}
+tg('dl',()=>showDl=!showDl);tg('cv_',()=>showCc=!showCc);tg('va',()=>showVal=!showVal);
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

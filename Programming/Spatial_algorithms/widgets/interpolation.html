@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ინტერპოლაცია</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+label{display:flex;gap:6px;align-items:center;color:var(--mut)}label b{color:var(--fg);min-width:2.2em}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+table{margin-top:8px;border-collapse:collapse;color:var(--mut)}td,th{padding:2px 14px 2px 0;text-align:left}b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <button id="m_nn">უახლოესი</button><button id="m_idw" class="on">IDW</button><button id="m_kr">Kriging</button><button id="m_var">Kriging-ის დისპერსია</button>
+ <button id="tr">ნამდვილი ზედაპირი</button>
+ <button id="rnd">შემთხვევითი 15</button><button id="clr">გასუფთავება</button>
+</div>
+<div class="bar">
+ <label>IDW ხარისხი p <input type="range" id="pw" min="1" max="6" step="0.5" value="2"><b id="pwv">2</b></label>
+ <label>Kriging-ის რადიუსი a <input type="range" id="rg" min="50" max="800" step="10" value="300"><b id="rgv">300</b></label>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<table>
+ <tr><th>მეთოდი</th><th>ცდომილება (RMSE) ნამდვილ ზედაპირთან</th></tr>
+ <tr><td>უახლოესი</td><td><b id="e1">–</b></td></tr>
+ <tr><td>IDW</td><td><b id="e2">–</b></td></tr>
+ <tr><td>Kriging</td><td><b id="e3">–</b></td></tr>
+</table>
+<p style="color:var(--mut);margin:6px 0 0">დააჭირეთ ნიმუშის წერტილის დასამატებლად (მნიშვნელობა მოდის ფარული „ნამდვილი" ზედაპირიდან). შეადარეთ მეთოდები: რომელი იძლევა ნაკლებ ცდომილებას ცოტა ნიმუშით, და რა ემართებათ რუკის კიდეებს.</p>
+<script>
+/*CORE*/
+function nnAt(S,x,y){let b=null,d=1e18;for(const s of S){const e=(s[0]-x)**2+(s[1]-y)**2;if(e<d){d=e;b=s}}return b[2]}
+function idwAt(S,x,y,p){let num=0,den=0;for(const s of S){const d2=(s[0]-x)**2+(s[1]-y)**2;if(d2===0)return s[2];const w=Math.pow(d2,-p/2);num+=w*s[2];den+=w}return num/den}
+function expVar(h,a){return 1-Math.exp(-3*h/a)}
+function inverse(A){const n=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+ for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];
+  const d=M[c][c];for(let k=0;k<2*n;k++)M[c][k]/=d;
+  for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c];if(f)for(let k=0;k<2*n;k++)M[r][k]-=f*M[c][k]}}
+ return M.map(r=>r.slice(n))}
+function krigPrep(S,a){const n=S.length,A=[];for(let i=0;i<n;i++){const r=[];for(let j=0;j<n;j++)r.push(expVar(Math.hypot(S[i][0]-S[j][0],S[i][1]-S[j][1]),a));r.push(1);A.push(r)}
+ A.push([...Array(n).fill(1),0]);return inverse(A)}
+function krigAt(S,Ai,a,x,y){const n=S.length,g=[];for(let i=0;i<n;i++)g.push(expVar(Math.hypot(S[i][0]-x,S[i][1]-y),a));g.push(1);
+ let z=0,v=0;for(let i=0;i<=n;i++){let w=0;for(let j=0;j<=n;j++)w+=Ai[i][j]*g[j];if(i<n){z+=w*S[i][2];v+=w*g[i]}else v+=w}return[z,v]}
+function truth(x,y){return 20+16*Math.sin(x/170)*Math.cos(y/110)+10*Math.sin((x+y)/260)}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=1000,H=500,CELL=10;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let S=[],mode='idw',showTruth=false;
+const col=v=>`hsl(${230-(Math.max(4,Math.min(46,v))-4)*5.2},62%,58%)`;
+function field(fn){const out=[];for(let j=0;j<H/CELL;j++)for(let i=0;i<W/CELL;i++)out.push(fn((i+.5)*CELL,(j+.5)*CELL));return out}
+function rmse(a,b){let s=0;for(let i=0;i<a.length;i++)s+=(a[i]-b[i])**2;return Math.sqrt(s/a.length)}
+let T=field(truth);
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ const P=+$('pw').value,A=+$('rg').value;$('pwv').textContent=P;$('rgv').textContent=A;
+ if(S.length>=2){
+  const nn=field((x,y)=>nnAt(S,x,y)),id=field((x,y)=>idwAt(S,x,y,P));
+  const Ai=krigPrep(S,A),kr=field((x,y)=>krigAt(S,Ai,A,x,y));
+  $('e1').textContent=rmse(nn,T).toFixed(2);$('e2').textContent=rmse(id,T).toFixed(2);$('e3').textContent=rmse(kr.map(k=>k[0]),T).toFixed(2);
+  const vals=showTruth?T:mode==='nn'?nn:mode==='idw'?id:mode==='kr'?kr.map(k=>k[0]):null;
+  kr.forEach((k,idx)=>{const i=idx%(W/CELL),j=(idx/(W/CELL))|0;
+   ctx.fillStyle=vals?col(vals[idx]):`hsl(40,85%,${95-Math.min(1,Math.max(0,k[1]))*55}%)`;ctx.fillRect(i*CELL,j*CELL,CELL,CELL)});
+ }else{if(showTruth)T.forEach((v,idx)=>{const i=idx%(W/CELL),j=(idx/(W/CELL))|0;ctx.fillStyle=col(v);ctx.fillRect(i*CELL,j*CELL,CELL,CELL)});
+  $('e1').textContent=$('e2').textContent=$('e3').textContent='–'}
+ S.forEach(s=>{ctx.fillStyle=css('--bg');ctx.beginPath();ctx.arc(s[0],s[1],6,0,7);ctx.fill();ctx.fillStyle=css('--fg');ctx.beginPath();ctx.arc(s[0],s[1],4,0,7);ctx.fill();
+  ctx.font='12px system-ui';ctx.fillStyle=css('--fg');ctx.fillText(s[2].toFixed(1),s[0]+8,s[1]-7)});
+}
+function setMode(m){mode=m;showTruth=false;$('tr').classList.remove('on');for(const k of['nn','idw','kr','var'])$('m_'+k).classList.toggle('on',k===m);draw()}
+for(const k of['nn','idw','kr','var'])$('m_'+k).onclick=()=>setMode(k);
+$('tr').onclick=e=>{showTruth=!showTruth;e.target.classList.toggle('on',showTruth);draw()};
+$('pw').oninput=draw;$('rg').oninput=draw;
+function add(x,y){S.push([x,y,truth(x,y)])}
+cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect();add((e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height);draw()});
+$('rnd').onclick=()=>{for(let i=0;i<15;i++)add(20+Math.random()*(W-40),20+Math.random()*(H-40));draw()};
+$('clr').onclick=()=>{S=[];draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

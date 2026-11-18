@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>k-d tree და Geohash</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--x:#2563eb;--y:#16a34a}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--x:#60a5fa;--y:#4ade80}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--x:#60a5fa;--y:#4ade80}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--x:#2563eb;--y:#16a34a}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+label{color:var(--mut)}input[type=range]{vertical-align:middle;width:110px}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}code{font-family:ui-monospace,monospace}
+.hide{display:none}
+</style></head><body>
+<div class="bar">
+ <button id="mk" class="on">k-d tree</button><button id="mg">Geohash</button>
+ <span id="kd_ctl"><button id="rnd">შემთხვევითი 100</button> <button id="clr">გასუფთავება</button></span>
+ <span id="gh_ctl" class="hide"><label>სიგრძე <input id="p" type="range" min="1" max="5" value="4"> <b id="pv">4</b></label></span>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats" id="kd_st"><span>წერტილები: <b id="n">0</b></span><span>უახლოესი მეზობლის ძებნისას შემოწმებული: <b id="vis">–</b></span><span>სრული გადარჩევა: <b id="all">–</b></span></div>
+<div class="stats hide" id="gh_st"><span>გეოჰეში: <code id="code">–</code></span><span>უჯრა: <b id="cell">–</b></span><span>კოორდინატები: <b id="ll">–</b></span></div>
+<p style="color:var(--mut);margin:6px 0 0" id="hint">დააჭირეთ წერტილის დასამატებლად, გადაატარეთ მაუსი უახლოესი წერტილის საპოვნელად.</p>
+<script>
+/*CORE*/
+const B32='0123456789bcdefghjkmnpqrstuvwxyz';
+function ghEncode(lat,lon,prec){let la=[-90,90],lo=[-180,180],code='',bits=0,ch=0,even=true;
+ while(code.length<prec){const r=even?lo:la,v=even?lon:lat,m=(r[0]+r[1])/2;ch<<=1;if(v>=m){ch|=1;r[0]=m}else r[1]=m;even=!even;if(++bits===5){code+=B32[ch];bits=0;ch=0}}return code}
+function ghBounds(code){let la=[-90,90],lo=[-180,180],even=true;
+ for(const c of code){const v=B32.indexOf(c);for(let i=4;i>=0;i--){const r=even?lo:la,m=(r[0]+r[1])/2;if((v>>i)&1)r[0]=m;else r[1]=m;even=!even}}
+ return [la[0],lo[0],la[1],lo[1]]}
+function build(pts,d,box){if(!pts.length)return null;const ax=d%2;pts=[...pts].sort((a,b)=>a[ax]-b[ax]);const m=pts.length>>1,p=pts[m];
+ const lb=[...box],rb=[...box];if(ax===0){lb[2]=p[0];rb[0]=p[0]}else{lb[3]=p[1];rb[1]=p[1]}
+ return{p,ax,box,l:build(pts.slice(0,m),d+1,lb),r:build(pts.slice(m+1),d+1,rb)}}
+function nearest(n,t,best,st){if(!n)return best;st.v++;const d=(n.p[0]-t[0])**2+(n.p[1]-t[1])**2;if(!best||d<best.d)best={p:n.p,d};
+ const diff=t[n.ax]-n.p[n.ax],[a,b]=diff<0?[n.l,n.r]:[n.r,n.l];best=nearest(a,t,best,st);if(diff*diff<best.d)best=nearest(b,t,best,st);return best}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=1000,H=500;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let mode='kd',pts=[],tree=null,cur=null,prec=4;
+const GEO=[41.0,40.0,44.0,47.0]; // south, west, north, east (საქართველოს ფანჯარა)
+function rebuild(){tree=build(pts,0,[0,0,W,H])}
+function drawKd(){
+ (function go(n){if(!n)return;ctx.lineWidth=1.5;ctx.strokeStyle=css(n.ax===0?'--x':'--y');ctx.beginPath();
+  if(n.ax===0){ctx.moveTo(n.p[0],n.box[1]);ctx.lineTo(n.p[0],n.box[3])}else{ctx.moveTo(n.box[0],n.p[1]);ctx.lineTo(n.box[2],n.p[1])}ctx.stroke();go(n.l);go(n.r)})(tree);
+ ctx.fillStyle=css('--fg');pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],3,0,7);ctx.fill()});
+ $('n').textContent=pts.length;
+ if(cur&&pts.length){const st={v:0},b=nearest(tree,cur,null,st);ctx.strokeStyle=css('--hit');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cur[0],cur[1]);ctx.lineTo(b.p[0],b.p[1]);ctx.stroke();
+  ctx.fillStyle=css('--hit');ctx.beginPath();ctx.arc(b.p[0],b.p[1],6,0,7);ctx.fill();$('vis').textContent=st.v;$('all').textContent=pts.length}
+ else{$('vis').textContent=$('all').textContent='–'}}
+function X(lon){return(lon-GEO[1])/(GEO[3]-GEO[1])*W}function Y(lat){return(GEO[2]-lat)/(GEO[2]-GEO[0])*H}
+function drawGh(){
+ const sample=ghBounds(ghEncode(42,43,prec)),dla=sample[2]-sample[0],dlo=sample[3]-sample[1];
+ if(prec<=4){ctx.strokeStyle=css('--line');ctx.lineWidth=1;ctx.beginPath();
+  for(let lo=Math.floor(GEO[1]/dlo)*dlo;lo<=GEO[3];lo+=dlo){ctx.moveTo(X(lo),0);ctx.lineTo(X(lo),H)}
+  for(let la=Math.floor(GEO[0]/dla)*dla;la<=GEO[2];la+=dla){ctx.moveTo(0,Y(la));ctx.lineTo(W,Y(la))}ctx.stroke()}
+ if(cur){const [lon,lat]=cur,c=ghEncode(lat,lon,prec),b=ghBounds(c);
+  ctx.fillStyle=css('--acc');ctx.globalAlpha=.18;ctx.fillRect(X(b[1]-dlo),Y(b[2]+dla),dlo/(GEO[3]-GEO[1])*W*3,dla/(GEO[2]-GEO[0])*H*3);ctx.globalAlpha=1;
+  ctx.fillStyle=css('--hit');ctx.globalAlpha=.35;ctx.fillRect(X(b[1]),Y(b[2]),X(b[3])-X(b[1]),Y(b[0])-Y(b[2]));ctx.globalAlpha=1;
+  ctx.strokeStyle=css('--hit');ctx.lineWidth=2;ctx.strokeRect(X(b[1]),Y(b[2]),X(b[3])-X(b[1]),Y(b[0])-Y(b[2]));
+  $('code').textContent=c;$('cell').textContent=(dlo*111*Math.cos(lat*Math.PI/180)).toFixed(prec>3?2:1)+' × '+(dla*111).toFixed(prec>3?2:1)+' კმ';$('ll').textContent=lat.toFixed(3)+'°, '+lon.toFixed(3)+'°'}
+ ctx.fillStyle=css('--mut');ctx.font='12px system-ui';ctx.fillText('ფანჯარა: საქართველო (40–47°E, 41–44°N)',8,H-8)}
+function draw(){ctx.clearRect(0,0,W,H);mode==='kd'?drawKd():drawGh()}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener('pointerdown',e=>{if(mode!=='kd')return;pts.push(pos(e));rebuild();draw()});
+cv.addEventListener('pointermove',e=>{const p=pos(e);cur=mode==='kd'?p:[GEO[1]+p[0]/W*(GEO[3]-GEO[1]),GEO[2]-p[1]/H*(GEO[2]-GEO[0])];draw()});
+function setMode(m){mode=m;cur=null;$('mk').classList.toggle('on',m==='kd');$('mg').classList.toggle('on',m==='gh');
+ for(const id of ['kd_ctl','kd_st'])$(id).classList.toggle('hide',m!=='kd');for(const id of ['gh_ctl','gh_st'])$(id).classList.toggle('hide',m!=='gh');
+ $('hint').textContent=m==='kd'?'დააჭირეთ წერტილის დასამატებლად, გადაატარეთ მაუსი უახლოესი წერტილის საპოვნელად. ლურჯი ხაზები x-ით, მწვანე y-ით ყოფს.':'გადაატარეთ მაუსი: წითელი უჯრა გეოჰეშია, ლურჯი მისი 8 მეზობელი. სიგრძის გაზრდა უჯრას ამცირებს და კოდს ახანგრძლივებს.';draw()}
+$('mk').onclick=()=>setMode('kd');$('mg').onclick=()=>setMode('gh');
+$('rnd').onclick=()=>{for(let i=0;i<100;i++)pts.push([Math.random()*W,Math.random()*H]);rebuild();draw()};
+$('clr').onclick=()=>{pts=[];rebuild();draw()};
+$('p').oninput=e=>{prec=+e.target.value;$('pv').textContent=prec;draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

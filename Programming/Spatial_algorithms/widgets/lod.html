@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LOD და Frustum culling</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--cull:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--cull:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--cull:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--cull:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.row{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:8px}
+label{color:var(--mut);white-space:nowrap}input[type=range]{vertical-align:middle;width:110px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+canvas{width:100%;max-width:560px;aspect-ratio:1/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none;cursor:grab}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+.leg{display:flex;gap:2px;align-items:center;color:var(--mut)}.leg i{width:14px;height:10px;display:inline-block}
+</style></head><body>
+<div class="row">
+ <button id="lod" class="on">LOD ჩართულია</button>
+ <button id="cull" class="on">Culling ჩართულია</button>
+ <label>ზღვარი (px) <input id="thr" type="range" min="1" max="64" value="3"> <b id="thrv">3</b></label>
+ <label>სიმაღლე <input id="h" type="range" min="5" max="200" value="8"> <b id="hv">8</b></label>
+</div>
+<div class="row">
+ <label>მიმართულება <input id="hd" type="range" min="0" max="359" value="90"> <b id="hdv">90°</b></label>
+ <label>FOV <input id="fov" type="range" min="20" max="120" value="60"> <b id="fovv">60°</b></label>
+ <span class="leg">დონე: <i style="background:hsl(210,70%,60%)"></i>მცირე <i style="background:hsl(120,60%,50%)"></i> <i style="background:hsl(50,80%,50%)"></i> <i style="background:hsl(0,75%,55%)"></i>დიდი</span>
+</div>
+<canvas id="c" width="560" height="560"></canvas>
+<div class="stats">
+ <span>არჩეული ტაილები: <b id="sel">0</b></span>
+ <span>გამორიცხული ტოტები: <b id="cul">0</b></span>
+ <span>მაქს. დეტალით ყველა ტაილი: <b id="all">0</b></span>
+</div>
+<p style="color:var(--mut);margin:6px 0 0">გადაათრიეთ კამერა (ლურჯი წერტილი).</p>
+<script>
+/*CORE*/
+const WORLD=1000,MAXL=8,TEX=256,VP=1080;
+function sse(err,dist,fov){return err*VP/(2*dist*Math.tan(fov*Math.PI/360))}
+function frustum(c){const half=c.fov*Math.PI/360,p=[[c.x,c.y]];
+ for(const a of [c.hd-half,c.hd+half])p.push([c.x+c.far*Math.cos(a),c.y+c.far*Math.sin(a)]);return p}
+function hitsPoly(r,poly){
+ const [x0,y0,x1,y1]=r,cs=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]],ax=[[1,0],[0,1]];
+ for(let i=0;i<poly.length;i++){const [a,b]=poly[i],[c,d]=poly[(i+1)%poly.length];ax.push([b-d,c-a])}
+ for(const [nx,ny] of ax){const A=cs.map(p=>nx*p[0]+ny*p[1]),B=poly.map(p=>nx*p[0]+ny*p[1]);
+  if(Math.max(...A)<Math.min(...B)||Math.max(...B)<Math.min(...A))return false}
+ return true}
+function dist(c,r){const dx=Math.max(r[0]-c.x,0,c.x-r[2]),dy=Math.max(r[1]-c.y,0,c.y-r[3]);return Math.sqrt(dx*dx+dy*dy+c.h*c.h)}
+function select(c,r,lvl,o,out,st,poly){
+ if(o.cull&&!hitsPoly(r,poly)){st.culled++;return}
+ const err=(r[2]-r[0])/TEX;
+ if(lvl===o.maxl||(o.lod?sse(err,dist(c,r),c.fov)<=o.thr:lvl>=o.fixed)){out.push([r,lvl]);return}
+ const mx=(r[0]+r[2])/2,my=(r[1]+r[3])/2;
+ for(const q of [[r[0],r[1],mx,my],[mx,r[1],r[2],my],[r[0],my,mx,r[3]],[mx,my,r[2],r[3]]])select(c,q,lvl+1,o,out,st,poly)}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),S=cv.width/WORLD;
+const cam={x:500,y:700,h:8,hd:-Math.PI/2,fov:60,far:900};
+let lod=true,cull=true,thr=3;
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function draw(){
+ const poly=frustum(cam),out=[],st={culled:0};
+ select(cam,[0,0,WORLD,WORLD],0,{cull,lod,thr,maxl:lod?MAXL:5,fixed:5},out,st,poly);
+ ctx.clearRect(0,0,cv.width,cv.height);
+ for(const [r,l] of out){ctx.fillStyle=`hsl(${210-l*30},70%,${60-l*2}%)`;
+  ctx.globalAlpha=.8;ctx.fillRect(r[0]*S,r[1]*S,(r[2]-r[0])*S,(r[3]-r[1])*S);ctx.globalAlpha=1;
+  ctx.strokeStyle=css('--bg');ctx.lineWidth=1;ctx.strokeRect(r[0]*S,r[1]*S,(r[2]-r[0])*S,(r[3]-r[1])*S)}
+ ctx.strokeStyle=css('--cull');ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+ poly.forEach((p,i)=>i?ctx.lineTo(p[0]*S,p[1]*S):ctx.moveTo(p[0]*S,p[1]*S));ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle=css('--acc');ctx.beginPath();ctx.arc(cam.x*S,cam.y*S,7,0,7);ctx.fill();
+ ctx.strokeStyle=css('--fg');ctx.lineWidth=2;ctx.strokeRect(1,1,cv.width-2,cv.height-2);
+ $('sel').textContent=out.length;$('cul').textContent=st.culled;$('all').textContent=(4**MAXL).toLocaleString('en')}
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);mv(e)});
+cv.addEventListener('pointermove',e=>{if(e.buttons)mv(e)});
+function mv(e){const r=cv.getBoundingClientRect();cam.x=Math.min(WORLD,Math.max(0,(e.clientX-r.left)/r.width*WORLD));cam.y=Math.min(WORLD,Math.max(0,(e.clientY-r.top)/r.height*WORLD));draw()}
+function bind(id,fn,sfx){$(id).oninput=e=>{fn(+e.target.value);$(id+'v').textContent=e.target.value+(sfx||'');draw()}}
+bind('thr',v=>thr=v);bind('h',v=>cam.h=v);bind('hd',v=>cam.hd=v*Math.PI/180,'°');bind('fov',v=>cam.fov=v,'°');
+$('hd').value=270;$('hdv').textContent='270°';cam.hd=270*Math.PI/180;
+$('lod').onclick=e=>{lod=!lod;e.target.classList.toggle('on',lod);e.target.textContent=lod?'LOD ჩართულია':'LOD გამორთულია (ფიქსირებული დონე)';draw()};
+$('cull').onclick=e=>{cull=!cull;e.target.classList.toggle('on',cull);e.target.textContent=cull?'Culling ჩართულია':'Culling გამორთულია';draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

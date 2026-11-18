@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>პოლიგონების გადაკვეთა</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--a:#2563eb;--b:#ea580c}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--a:#60a5fa;--b:#fb923c}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--a:#60a5fa;--b:#fb923c}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--a:#2563eb;--b:#ea580c}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:8px}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button.on{border-color:var(--acc);color:var(--acc)}
+canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <button id="o_intersection" class="on">A ∩ B</button><button id="o_union">A ∪ B</button><button id="o_difference">A − B</button><button id="o_rdifference">B − A</button>
+ <button id="rnd">შემთხვევითი</button><button id="rst">საწყისი</button>
+</div>
+<canvas id="c" width="1000" height="500"></canvas>
+<div class="stats">
+ <span>A ფართობი: <b id="aa">–</b></span><span>B ფართობი: <b id="ab">–</b></span>
+ <span>შედეგი: <b id="ar">–</b></span><span>გადაკვეთის წერტილები: <b id="nx">–</b></span>
+</div>
+<p style="color:var(--mut);margin:6px 0 0">გადაიტანეთ წვეროები. ლურჯი არის A, ნარინჯისფერი B, შევსებული ნაწილი შედეგია. სცადეთ ისე გადაიტანოთ, რომ ერთი მეორეს მთლიანად მოიცავდეს, ან ორი ნაწილი დაიყოს. ხვრელი (როცა ერთი პოლიგონი მეორეშია მოქცეული) ცალკე რგოლია და ცარიელად ჩანს.</p>
+<script>
+/*CORE*/
+function pip(p,poly){let inside=false;const n=poly.length;for(let i=0;i<n;i++){const[x1,y1]=poly[i],[x2,y2]=poly[(i+1)%n];if((y1>p[1])!==(y2>p[1])&&p[0]<x1+(p[1]-y1)*(x2-x1)/(y2-y1))inside=!inside}return inside}
+function area(poly){let s=0;const n=poly.length;for(let i=0;i<n;i++){const a=poly[i],b=poly[(i+1)%n];s+=a[0]*b[1]-b[0]*a[1]}return s/2}
+function hit(p1,p2,q1,q2){const rx=p2[0]-p1[0],ry=p2[1]-p1[1],sx=q2[0]-q1[0],sy=q2[1]-q1[1],den=rx*sy-ry*sx;if(den===0)return null;
+ const t=((q1[0]-p1[0])*sy-(q1[1]-p1[1])*sx)/den,u=((q1[0]-p1[0])*ry-(q1[1]-p1[1])*rx)/den;return(t>0&&t<1&&u>0&&u<1)?[t,u]:null}
+function build(poly){const N=poly.map(([x,y])=>({x,y,isX:false,alpha:0,nb:null,entry:false,vis:false,next:null,prev:null}));N.forEach((n,i)=>{n.next=N[(i+1)%N.length];n.prev=N[(i+N.length-1)%N.length]});return N}
+function insert(a,b,alpha,x,y){const nd={x,y,isX:true,alpha,nb:null,entry:false,vis:false,next:null,prev:null};let cur=a;while(cur.next!==b&&cur.next.isX&&cur.next.alpha<alpha)cur=cur.next;nd.next=cur.next;nd.prev=cur;cur.next.prev=nd;cur.next=nd;return nd}
+function clip(subject,clipper,op){const S=build(subject),C=build(clipper);let found=0;
+ for(let i=0;i<S.length;i++){const a=S[i],a2=S[(i+1)%S.length];
+  for(let j=0;j<C.length;j++){const b=C[j],b2=C[(j+1)%C.length];const h=hit([a.x,a.y],[a2.x,a2.y],[b.x,b.y],[b2.x,b2.y]);
+   if(h){const[t,u]=h,x=a.x+t*(a2.x-a.x),y=a.y+t*(a2.y-a.y),ns=insert(a,a2,t,x,y),nc=insert(b,b2,u,x,y);ns.nb=nc;nc.nb=ns;found++}}}
+ if(!found){const ab=pip(subject[0],clipper),ba=pip(clipper[0],subject);
+  if(op==='intersection')return{rings:ab?[subject]:ba?[clipper]:[],n:0};
+  if(op==='union')return{rings:ab?[clipper]:ba?[subject]:[subject,clipper],n:0};
+  return{rings:ab?[]:ba?[subject,clipper]:[subject],n:0}}
+ const fs=op==='union'||op==='difference',fc=op==='union';
+ for(const[head,other,flip]of[[S[0],clipper,fs],[C[0],subject,fc]]){let entry=!pip([head.x,head.y],other);if(flip)entry=!entry;let cur=head;
+  do{if(cur.isX){cur.entry=entry;entry=!entry}cur=cur.next}while(cur!==head)}
+ const xs=[];let cur=S[0];do{if(cur.isX)xs.push(cur);cur=cur.next}while(cur!==S[0]);
+ const rings=[];
+ for(const st of xs){if(st.vis)continue;const ring=[];let c=st;
+  for(;;){c.vis=c.nb.vis=true;const fw=c.entry;for(;;){c=fw?c.next:c.prev;ring.push([c.x,c.y]);if(c.isX)break}c=c.nb;if(c.vis)break}
+  rings.push(ring)}
+ return{rings,n:found}}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=1000,H=500;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const START=()=>({A:[[200,90],[420,60],[470,230],[330,200],[250,400],[110,330]],B:[[360,170],[620,110],[700,300],[520,430],[400,330],[500,250]]});
+let {A,B}=START(),op='intersection',drag=null,msg='';
+function compute(){try{return op==='rdifference'?clip(B,A,'difference'):clip(A,B,op)}catch(e){return null}}
+function path(p){ctx.beginPath();p.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath()}
+function draw(){ctx.clearRect(0,0,W,H);
+ const res=compute();
+ for(const[P,c]of[[A,'--a'],[B,'--b']]){path(P);ctx.fillStyle=css(c);ctx.globalAlpha=.13;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=css(c);ctx.lineWidth=2;ctx.stroke()}
+ let tot=0;
+ if(res){ctx.beginPath();res.rings.forEach(r=>{r.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath()});
+  ctx.fillStyle=css('--hit');ctx.globalAlpha=.45;ctx.fill('evenodd');ctx.globalAlpha=1;ctx.strokeStyle=css('--hit');ctx.lineWidth=2.5;ctx.stroke();
+  res.rings.forEach((r,i)=>{const hole=res.rings.filter((o,j)=>j!==i&&pip(r[0],o)).length%2===1;tot+=(hole?-1:1)*Math.abs(area(r))});
+  $('ar').textContent=Math.round(tot).toLocaleString('en')+' px²';$('nx').textContent=res.n}
+ else{$('ar').textContent='გადაგვარებული შემთხვევა';$('nx').textContent='–'}
+ $('aa').textContent=Math.round(Math.abs(area(A))).toLocaleString('en');$('ab').textContent=Math.round(Math.abs(area(B))).toLocaleString('en');
+ for(const[P,c]of[[A,'--a'],[B,'--b']])P.forEach(q=>{ctx.fillStyle=css('--bg');ctx.strokeStyle=css(c);ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],7,0,7);ctx.fill();ctx.stroke()})}
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener('pointerdown',e=>{const p=pos(e);let best=null,d=14*14;for(const P of[A,B])for(const q of P){const e2=(q[0]-p[0])**2+(q[1]-p[1])**2;if(e2<d){d=e2;best=q}}drag=best;if(best)cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const p=pos(e);drag[0]=Math.max(0,Math.min(W,p[0]))+1e-3;drag[1]=Math.max(0,Math.min(H,p[1]))+1e-3;draw()});
+cv.addEventListener('pointerup',()=>{drag=null});
+for(const k of['intersection','union','difference','rdifference'])$('o_'+k).onclick=()=>{op=k;for(const j of['intersection','union','difference','rdifference'])$('o_'+j).classList.toggle('on',j===k);draw()};
+function randPoly(cx,cy){const n=5+Math.floor(Math.random()*5),a=Array.from({length:n},()=>Math.random()*2*Math.PI).sort((x,y)=>x-y);return a.map(t=>{const r=70+Math.random()*130;return[cx+r*Math.cos(t),cy+r*Math.sin(t)*.9]})}
+$('rnd').onclick=()=>{A=randPoly(340,250);B=randPoly(560+Math.random()*100,250);draw()};
+$('rst').onclick=()=>{({A,B}=START());draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>

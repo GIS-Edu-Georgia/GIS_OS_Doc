@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ხილვადობა</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px}
+label{display:flex;gap:6px;align-items:center;color:var(--mut)}label b{color:var(--fg);min-width:2.6em}
+button{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;touch-action:none}
+#c{aspect-ratio:3/2}#p{aspect-ratio:6/1;margin-top:8px}
+.stats{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--mut)}.stats b{color:var(--fg)}
+</style></head><body>
+<div class="bar">
+ <label>დამკვირვებლის სიმაღლე <input type="range" id="ho" min="0" max="100" step="1" value="2"><b id="hov">2 მ</b></label>
+ <label>სამიზნის სიმაღლე <input type="range" id="ht" min="0" max="30" step="1" value="0"><b id="htv">0 მ</b></label>
+ <button id="rst">დამკვირვებელი ცენტრში</button>
+</div>
+<canvas id="c" width="900" height="600"></canvas>
+<canvas id="p" width="900" height="150"></canvas>
+<div class="stats">
+ <span>ხილული უჯრები: <b id="vis">–</b></span><span>კურსორზე: <b id="tgt">გადაიტანეთ კურსორი რუკაზე</b></span>
+</div>
+<p style="color:var(--mut);margin:6px 0 0">დააჭირეთ რუკაზე დამკვირვებლის გადასაადგილებლად (წითელი წერტილი). მწვანედ ჩანს ის, რასაც ხედავს, მუქად ის, რაც რელიეფის უკანაა. კურსორის ქვეშ ქვედა გრაფიკზე ჩანს ხედვის ხაზი და რელიეფის პროფილი.</p>
+<script>
+/*CORE*/
+const ROWS=40,COLS=60,CELL=30;
+function terr(r,c){return 120+60*Math.sin(c/9)*Math.cos(r/7)+35*Math.sin((r+c)/13)+25*Math.cos(c/4.5)*Math.sin(r/5)}
+const DEM=Array.from({length:ROWS},(_,r)=>Array.from({length:COLS},(_,c)=>terr(r,c)));
+function bres(r0,c0,r1,c1){const out=[],dr=Math.abs(r1-r0),dc=Math.abs(c1-c0),sr=r1>r0?1:-1,sc=c1>c0?1:-1;let err=dc-dr,r=r0,c=c0;
+ for(;;){out.push([r,c]);if(r===r1&&c===c1)return out;const e2=2*err;if(e2>-dr){err-=dr;c+=sc}if(e2<dc){err+=dc;r+=sr}}}
+function los(obs,tg,ho,ht){const[r0,c0]=obs,[r1,c1]=tg,z0=DEM[r0][c0]+ho;let ms=-Infinity;const path=bres(r0,c0,r1,c1).slice(1);
+ for(const[r,c]of path){const d=Math.hypot(r-r0,c-c0)*CELL;if(r===r1&&c===c1)return(DEM[r][c]+ht-z0)/d>=ms;ms=Math.max(ms,(DEM[r][c]-z0)/d)}return true}
+function viewshed(obs,ho,ht){const v=[];for(let r=0;r<ROWS;r++){const row=[];for(let c=0;c<COLS;c++)row.push(los(obs,[r,c],ho,ht));v.push(row)}return v}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),pc=document.getElementById('p'),px=pc.getContext('2d'),$=id=>document.getElementById(id);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),K=cv.width/COLS;
+let obs=[20,30],V=null,cur=null,zmin=1e9,zmax=-1e9;
+for(const r of DEM)for(const z of r){zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)}
+function shade(r,c){const z=DEM[r][c],dx=(DEM[r][Math.min(COLS-1,c+1)]-DEM[r][Math.max(0,c-1)])/2,dy=(DEM[Math.min(ROWS-1,r+1)][c]-DEM[Math.max(0,r-1)][c])/2;
+ const lit=Math.max(0,Math.min(1,.55+(dx-dy)*.012)),h=(z-zmin)/(zmax-zmin);return[lit,h]}
+function recompute(){V=viewshed(obs,+$('ho').value,+$('ht').value);$('hov').textContent=$('ho').value+' მ';$('htv').textContent=$('ht').value+' მ';
+ let n=0;for(const r of V)for(const x of r)if(x)n++;$('vis').textContent=n+' / '+ROWS*COLS+' ('+(100*n/ROWS/COLS).toFixed(1)+'%)';draw()}
+function draw(){
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const[lit,h]=shade(r,c),g=Math.round(70+150*lit*(.55+.45*h));
+  ctx.fillStyle=V[r][c]?`rgb(${Math.round(g*.55)},${Math.min(255,Math.round(g*1.05))},${Math.round(g*.55)})`:`rgb(${Math.round(g*.45)},${Math.round(g*.45)},${Math.round(g*.5)})`;ctx.fillRect(c*K,r*K,K+.5,K+.5)}
+ ctx.fillStyle='#e11d48';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc((obs[1]+.5)*K,(obs[0]+.5)*K,7,0,7);ctx.fill();ctx.stroke();
+ if(cur){ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo((obs[1]+.5)*K,(obs[0]+.5)*K);ctx.lineTo((cur[1]+.5)*K,(cur[0]+.5)*K);ctx.stroke();ctx.setLineDash([])}
+ profile()}
+function profile(){const W=pc.width,H=pc.height;px.clearRect(0,0,W,H);if(!cur){$('tgt').textContent='გადაიტანეთ კურსორი რუკაზე';return}
+ const ho=+$('ho').value,ht=+$('ht').value,path=bres(obs[0],obs[1],cur[0],cur[1]),n=path.length;
+ const zs=path.map(([r,c])=>DEM[r][c]),z0=zs[0]+ho,z1=zs[n-1]+ht,lo=Math.min(zmin,z0)-5,hi=Math.max(zmax,z0,z1)+10;
+ const X=i=>n>1?i/(n-1)*(W-20)+10:10,Y=z=>H-8-(z-lo)/(hi-lo)*(H-16);
+ px.fillStyle=css('--card');px.beginPath();px.moveTo(X(0),H);zs.forEach((z,i)=>px.lineTo(X(i),Y(z)));px.lineTo(X(n-1),H);px.closePath();px.fill();
+ px.strokeStyle=css('--mut');px.lineWidth=1.5;px.beginPath();zs.forEach((z,i)=>i?px.lineTo(X(i),Y(z)):px.moveTo(X(i),Y(z)));px.stroke();
+ const ok=los(obs,cur,ho,ht);px.strokeStyle=ok?'#16a34a':'#e11d48';px.lineWidth=2;px.beginPath();px.moveTo(X(0),Y(z0));px.lineTo(X(n-1),Y(z1));px.stroke();
+ px.fillStyle='#e11d48';px.beginPath();px.arc(X(0),Y(z0),4,0,7);px.fill();
+ $('tgt').innerHTML=`<b style="color:${ok?'#16a34a':'#e11d48'}">${ok?'ჩანს':'არ ჩანს'}</b>, მანძილი ${Math.round(Math.hypot(cur[0]-obs[0],cur[1]-obs[1])*CELL)} მ, სიმაღლე ${DEM[cur[0]][cur[1]].toFixed(0)} მ`}
+function cellAt(e){const r=cv.getBoundingClientRect();return[Math.max(0,Math.min(ROWS-1,Math.floor((e.clientY-r.top)/r.height*ROWS))),Math.max(0,Math.min(COLS-1,Math.floor((e.clientX-r.left)/r.width*COLS)))]}
+cv.addEventListener('pointerdown',e=>{obs=cellAt(e);recompute()});
+cv.addEventListener('pointermove',e=>{cur=cellAt(e);draw()});cv.addEventListener('pointerleave',()=>{cur=null;draw()});
+$('ho').oninput=recompute;$('ht').oninput=recompute;$('rst').onclick=()=>{obs=[20,30];recompute()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}recompute()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>
