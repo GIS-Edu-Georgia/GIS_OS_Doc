@@ -5,6 +5,8 @@
    საგნის მონაცემები: docs/Quiz/data/<id>.js  (იხ. gis.js)
    თემა (მუქი/ღია) — საიტის Material palette-ს მიჰყვება.
    პროგრესი ინახება localStorage-ში; ქეშირებას არსებული service-worker აკეთებს.
+   არასავალდებულო: კითხვის მე-5 ელემენტი = განმარტება (string ან {ka,en}); ჩანს პასუხის შემდეგ.
+   თუ ინგლისური ტექსტი არ არის (null/ცარიელი), ნაჩვენებია ქართული.
    ============================================================ */
 (function () {
   "use strict";
@@ -20,7 +22,7 @@
       shuffle: "პასუხების არევა", mix: "შერეული (ყველა ნაწილიდან)", mixDesc: "შემთხვევითი 20 კითხვა", back: "უკან",
       attempts: "ცდა", done: "შესრულებულია", cleared: "განულებულია", subjects: "საგნები",
       kbd: "კლავიშები: 1–3 არჩევა, Enter — შემდეგი, ← წინა", exam: "გამოცდის რეჟიმი (პასუხი ბოლოს ჩანს)",
-      loadErr: "მონაცემები ვერ ჩაიტვირთა",
+      loadErr: "მონაცემები ვერ ჩაიტვირთა", explanation: "განმარტება",
     },
     en: {
       title: "Quizzes", subtitle: "Pick a subject and start studying", questions: "questions", best: "Best",
@@ -31,7 +33,7 @@
       shuffle: "Shuffle answers", mix: "Mixed (all parts)", mixDesc: "20 random questions", back: "Back",
       attempts: "attempts", done: "Completed", cleared: "Reset", subjects: "Subjects",
       kbd: "Keys: 1–3 choose, Enter — next, ← previous", exam: "Exam mode (answers shown at the end)",
-      loadErr: "Could not load data",
+      loadErr: "Could not load data", explanation: "Explanation",
     },
   };
 
@@ -43,7 +45,14 @@
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function t(k) { return I18N[S.lang][k]; }
-  function L(x) { return x && typeof x === "object" ? x[S.lang] || x.en : x; }
+  // fallback: requested language -> en -> ka (previously a missing translation rendered empty)
+  function L(x) { return x && typeof x === "object" ? x[S.lang] || x.en || x.ka : x; }
+  // `code` -> <code>; DOM nodes only (no HTML injection). Unbalanced backticks stay plain text.
+  function rich(text) {
+    var parts = String(text).split("`");
+    if (parts.length % 2 === 0) return String(text);
+    return parts.map(function (p, i) { return p && (i % 2 ? el("code", {}, p) : p); });
+  }
   function opt(s) { var p = String(s).split("|"); return p.length > 1 ? { ka: p[0], en: p[1] } : { ka: s, en: s }; }
 
   function el(tag, attrs) {
@@ -75,7 +84,7 @@
     var out = [];
     s.quizzes.forEach(function (q) {
       if (quizId !== "mix" && q.id !== quizId) return;
-      q.questions.forEach(function (x, i) { out.push({ id: s.id + "." + q.id + "." + i, ka: x[0], en: x[1], opts: x[2].map(opt), a: x[3] }); });
+      q.questions.forEach(function (x, i) { out.push({ id: s.id + "." + q.id + "." + i, ka: x[0], en: x[1], opts: x[2].map(opt), a: x[3], exp: x[4] }); });
     });
     return out;
   }
@@ -177,7 +186,7 @@
       var picked = ses.answers[meta.id] === oi, cls = "qh-opt";
       if (reveal) { if (oi === q.a) cls += " ok"; else if (picked) cls += " bad"; } else if (picked) cls += " picked";
       return el("button", { class: cls, disabled: reveal, onclick: function () { choose(s, meta.id, oi); } },
-        el("span", { class: "k" }, String(pos + 1)), el("span", {}, L(q.opts[oi])));
+        el("span", { class: "k" }, String(pos + 1)), el("span", {}, rich(L(q.opts[oi]))));
     });
 
     var exam = el("input", { type: "checkbox", id: "qh-exam", onchange: function (e) { S.exam = e.target.checked; ses.exam = S.exam; save(); render(); } });
@@ -190,8 +199,9 @@
       el("div", { class: "qh-panel" },
         el("div", { class: "qh-qnum" }, el("span", {}, (ses.idx + 1) + " / " + ses.qs.length)),
         el("div", { class: "qh-prog" }, el("i", { style: "width:" + (ses.idx / ses.qs.length) * 100 + "%" })),
-        el("div", { class: "qh-q" }, L(q)),
+        el("div", { class: "qh-q" }, rich(L(q))),
         el("div", { class: "qh-opts" }, opts),
+        reveal && q.exp && el("div", { class: "qh-exp" }, el("b", {}, t("explanation") + ": "), rich(L(q.exp))),
         el("div", { class: "qh-actions" },
           el("button", { class: "qh-btn ghost", disabled: ses.idx === 0, onclick: function () { go(s, -1); } }, "← " + t("prev")),
           el("button", { class: "qh-btn", disabled: !answered, onclick: function () { go(s, 1); } }, ses.idx === ses.qs.length - 1 ? t("finish") : t("next") + " →"),
@@ -233,9 +243,10 @@
       var q = all[m.id], ans = ses.answers[m.id], ok = ans === m.a;
       return el("div", { class: "qh-item " + (ok ? "ok" : "bad") },
         el("div", { class: "qh-tag " + (ok ? "ok" : "bad") }, ok ? "✓ " + t("correct") : "✗ " + t("wrong")),
-        el("div", {}, el("b", {}, L(q))),
-        !ok && el("div", { class: "qh-muted" }, t("yourAnswer") + ": " + (ans === undefined ? t("skipped") : L(q.opts[ans]))),
-        el("div", {}, t("rightAnswer") + ": " + L(q.opts[q.a])));
+        el("div", {}, el("b", {}, rich(L(q)))),
+        !ok && el("div", { class: "qh-muted" }, t("yourAnswer") + ": ", ans === undefined ? t("skipped") : rich(L(q.opts[ans]))),
+        el("div", {}, t("rightAnswer") + ": ", rich(L(q.opts[q.a]))),
+        q.exp && el("div", { class: "qh-exp" }, el("b", {}, t("explanation") + ": "), rich(L(q.exp))));
     });
     return el("div", {},
       el("button", { class: "qh-link", onclick: function () { view = { v: "subject", sid: s.id }; render(); } }, "← " + L(s.title)),

@@ -1,0 +1,42 @@
+name: PR Validation
+
+# Validation only: this workflow never deploys, never pushes, and never touches
+# GitHub Pages / the gh-pages branch. Deployment stays in ci.yml (push to main).
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Strict build and quiz tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install pinned MkDocs dependencies
+        run: pip install mkdocs==1.6.0 mkdocs-material==9.5.27 mkdocs-jupyter==0.25.1
+
+      - name: Strict MkDocs build (output to a temp dir, not published)
+        run: mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
+
+      - name: Quiz Hub tests
+        run: node --test tests/quizhub/quizhub.test.js

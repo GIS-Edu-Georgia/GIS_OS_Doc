@@ -44,6 +44,7 @@
 #quizhub .qh-item.ok { border-left-color: var(--qh-ok); }
 #quizhub .qh-item.bad { border-left-color: var(--qh-bad); }
 #quizhub .qh-tag.ok { color: var(--qh-ok); } #quizhub .qh-tag.bad { color: var(--qh-bad); }
+#quizhub .qh-exp { margin-top: .9rem; padding: .6rem .8rem; border-left: 4px solid var(--md-accent-fg-color); background: var(--qh-surface); border-radius: 6px; font-size: .9rem; }
 #quizhub .qh-toggle { display: flex; gap: .6rem; align-items: center; margin-top: .8rem; font-size: .9rem; }
 #quizhub .qh-hint { font-size: .75rem; color: var(--md-default-fg-color--light); margin-top: .6rem; }
 .qh-toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: var(--md-default-fg-color); color: var(--md-default-bg-color); padding: .5rem 1rem; border-radius: 8px; z-index: 20; font-size: .85rem; }
