@@ -76,7 +76,7 @@ Electerm საკუთარ SSH კლიენტს იყენებს �
 
 ### 1. Key-ის შექმნა host-ზე
 ```bash
-ssh-keygen -t ed25519 -C "k@k-M4700"
+ssh-keygen -t ed25519 -C "k@hostpc"
 ```
 კითხვებზე დააჭირე Enter. შეიქმნება `~/.ssh/id_ed25519` (პრივატული) და `~/.ssh/id_ed25519.pub` (საჯარო). <br>
 

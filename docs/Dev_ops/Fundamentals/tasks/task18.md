@@ -37,8 +37,8 @@ flowchart TD
 ეს პარამეტრები ერთხელ დაყენდება და ყველა რეპოზიტორიაში გამოიყენება:
 
 ```bash
-git config --global user.name "kapanadze"
-git config --global user.email "36360197+ezdanapak@users.noreply.github.com"
+git config --global user.name "your-name"
+git config --global user.email "12345678+your-username@users.noreply.github.com"
 git config --global init.defaultBranch main
 ```
 
@@ -51,8 +51,8 @@ git config --global init.defaultBranch main
 > 💡 `init.defaultBranch` პარამეტრი Git 2.28-ში დაემატა. თანამედროვე პრაქტიკით `main` სახელი სტანდარტია (GitHub, GitLab ორივე ამას იყენებს).
 
 ```console
-k@devserver:~/docker-app$ git config --global user.name "kapanadze"
-k@devserver:~/docker-app$ git config --global user.email "36360197+ezdanapak@users.noreply.github.com"
+k@devserver:~/docker-app$ git config --global user.name "your-name"
+k@devserver:~/docker-app$ git config --global user.email "12345678+your-username@users.noreply.github.com"
 k@devserver:~/docker-app$ cd ~/docker-app
 k@devserver:~/docker-app$ git init
 hint: Using 'master' as the name for the initial branch. This default branch name
@@ -160,7 +160,7 @@ git log
 
 ```
 commit b7555e19618a377c98b79c7203013bb54095725a (HEAD -> master)
-Author: kapanadze <36360197+ezdanapak@users.noreply.github.com>
+Author: your-name <12345678+your-username@users.noreply.github.com>
 Date:   Tue Feb 10 19:46:32 2026 +0000
 
     Initial commit: Nginx + PostgreSQL + Adminer docker-compose app
@@ -223,7 +223,7 @@ git log
 ```console
 k@devserver:~/docker-app$ git log
 commit b7555e19618a377c98b79c7203013bb54095725a (HEAD -> master)
-Author: kapanadze <36360197+ezdanapak@users.noreply.github.com>
+Author: your-name <12345678+your-username@users.noreply.github.com>
 Date:   Tue Feb 10 19:46:32 2026 +0000
 
     Initial commit: Nginx + PostgreSQL + Adminer docker-compose app

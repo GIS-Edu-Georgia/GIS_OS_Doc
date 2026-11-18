@@ -270,7 +270,7 @@ udp  0.0.0.0:41641          tailscaled (WireGuard)
 ორი ადგილიდან: **ჰოსტიდან** (გარედან, რეალური სურათი) და **VM-იდან** (საკუთარი თავიდან). <br>
 
 ```text
-k@k-M4700:~$ nc -zv -w 2 192.168.56.10 22 80 443 8080 5432
+k@hostpc:~$ nc -zv -w 2 192.168.56.10 22 80 443 8080 5432
 Connection to 192.168.56.10 22 port [tcp/ssh] succeeded!
 Connection to 192.168.56.10 80 port [tcp/http] succeeded!
 Connection to 192.168.56.10 443 port [tcp/https] succeeded!
