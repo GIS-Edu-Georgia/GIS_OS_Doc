@@ -388,6 +388,7 @@ nav:
         - Linux/Lab/index.md
         - ლაბი 02 — ფაილები: Linux/Lab/lab_02_files.md
     - Dev Ops:
+      - 'მთავარი გვერდი': Dev_ops/index.md
       - შესავალი: Dev_ops/intro.md
       - მოდული: Dev_ops/Other/Steps.md
       - 'QGIS':
