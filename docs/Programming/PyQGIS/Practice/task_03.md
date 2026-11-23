@@ -1,99 +1,91 @@
 # 📝 დავალება 3
 
-**საჭირო თემები:** [კოორდინატების კონვერტაცია](../PyQGIS_topics/PyQGIS_coordinates.md), [გაანგარიშებები ცხრილში](../PyQGIS_topics/PyQGIS_Calc_Attrib_Expressions.md), [რელიეფი](../PyQGIS_topics/PyQGIS_Raster_DEM.md)
+**საჭირო თემები:** [შრის შექმნა](../PyQGIS_topics/PyQGIS_Create_layer.md), [კოორდინატების კონვერტაცია](../PyQGIS_topics/PyQGIS_coordinates.md), [გაანგარიშებები ცხრილში](../PyQGIS_topics/PyQGIS_Calc_Attrib_Expressions.md)
 
-**მონაცემები:** `sample_data/practice/task_03/` (`saxli`, `saxli_1`, `geo_regions.shp`, `srtm_45_04.tif`)
+**მონაცემები:** `sample_data/practice/osm/` (`gis_osm_roads_free_Batumi`; OpenStreetMap, EPSG:4326). ყველა OSM შრე ერთ არქივად: [`OSM_shp_PyQGIS.zip`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/osm-data-v1/OSM_shp_PyQGIS.zip)
+
+აქ და შემდეგ ამოხსნებში გამოიყენება [ზოგადი დამხმარე კოდი](index.md#ამოხსნები).
+
+!!! danger "სავალდებულოა: იმუშავეთ ასლზე"
+    ველების დამატება ხდება **პირდაპირ ფაილში**. სანამ დაიწყებთ, დააკოპირეთ შრეები (`.shp`, `.shx`, `.dbf`, `.prj`, `.cpg`) თქვენს `shp` საქაღალდეში და მუშაობა მხოლოდ ასლზე აწარმოეთ.
 
 ---
 
-## ნაწილი 1 (საქაღალდე: `part_1`)
+## ამოცანები (საქაღალდე: `part_1`)
 
-1. ჩატვირთეთ `saxli` და დაამატეთ სვეტი `saxeli / gvari` (ლათინური სახელით, მაგ. `saxeli_gvari`); ჩაწერეთ თქვენი სახელი და გვარი.
-2. ჩატვირთეთ `saxli_1` და გააერთიანეთ `saxli`-სთან.
-3. ჩატვირთეთ `geo_regions.shp` და `srtm_45_04.tif`. რელიეფი მოჭერით იმერეთის რეგიონით და ააგეთ ჩრდილოვანი რელიეფი (hillshade).
+1. შექმენით წერტილოვანი შრე `points`, CRS **EPSG:4326**, და შეინახეთ `shp` საქაღალდეში.
+2. ჩაწერეთ კოორდინატები `txt` ფაილში. წაიკითხეთ ისინი სკრიპტით, გადაიყვანეთ ათწილად გრადუსებში და დაბეჭდეთ კონსოლში:
+    - 42°17'2.95"N, 43°16'55.79"E
+    - 42°17'26.48"N, 43°16'46.89"E
 
-??? success "ამოხსნა 1.1 – 1.2"
+    > ამ კონკრეტულ დავალებაზე შაბლონის სკრიპტის გარდა შეგიძლიათ **AI-ს გამოყენება**.
+3. `gis_osm_roads_free_Batumi` შრეში (ბათუმის გზები) გამოთვალეთ სიგრძე ორ სხვადასხვა სვეტში: `WGS_Length` (ელიფსოიდური) და `UTM_Length` (UTM ზონის პროექციაში). გადახედეთ მონაცემებს: გჭირდებათ თუ არა საკოორდინატო სისტემის შეცვლა?
+
+??? success "ამოხსნა 1.1"
     ```python
-    from qgis.PyQt.QtCore import QVariant
-    saxli = QgsVectorLayer(base + '/shp/saxli.shp', 'saxli', 'ogr')
-    saxli.dataProvider().addAttributes([QgsField('saxeli_gvari', QVariant.String)])
-    saxli.updateFields()
-
-    saxli.startEditing()
-    for f in saxli.getFeatures():
-        f['saxeli_gvari'] = 'giorgi kapanadze'
-        saxli.updateFeature(f)
-    saxli.commitChanges()
-
-    saxli_1 = QgsVectorLayer(base + '/shp/saxli_1.shp', 'saxli_1', 'ogr')
-    processing.run('native:mergevectorlayers', {
-        'LAYERS': [saxli, saxli_1], 'CRS': saxli.crs(),
-        'OUTPUT': base + '/shp/saxli_merged.shp'})
+    layer = QgsVectorLayer('Point?crs=EPSG:4326', 'points', 'memory')
+    save_shp(layer, base + '/shp/points.shp')
     ```
+
+??? success "ამოხსნა 1.2"
+    `coords.txt` (თითო სტრიქონზე ერთი წერტილი: გრძედი, გრძივი):
+    ```text
+    42°17'2.95"N, 43°16'55.79"E
+    42°17'26.48"N, 43°16'46.89"E
+    ```
+    ```python
+    import re
+
+    def dms(text):
+        d, m, s, hemi = re.match(r'(\d+)°(\d+)\'([\d.]+)"([NSEW])', text.strip()).groups()
+        value = int(d) + int(m) / 60 + float(s) / 3600
+        return -value if hemi in 'SW' else value
+
+    with open(base + '/coords.txt', encoding='utf-8') as fh:
+        for line in fh:
+            lat, lon = [dms(part) for part in line.split(',')]
+            print(round(lat, 6), round(lon, 6))
+    ```
+    **მოსალოდნელი შედეგი:**
+    ```text
+    42.284153 43.282164
+    42.290689 43.279692
+    ```
+    > ტექსტში სიმბოლო `°` არაა ლათინური, ამიტომ ფაილი UTF-8-ში შეინახეთ და `encoding='utf-8'` მიუთითეთ. გრძედი (N/S) პირველია, გრძივი (E/W) მეორე; წერტილის შესაქმნელად `QgsPointXY(lon, lat)` – ჯერ გრძივი.
 
 ??? success "ამოხსნა 1.3"
+    შრის CRS არის **EPSG:4326** (გრადუსები), ამიტომ `geometry().length()` გრადუსებს დააბრუნებდა. სიგრძისთვის გვჭირდება ან ელიფსოიდური გაზომვა, ან პროექციულ CRS-ში გადაყვანა.
     ```python
-    regions = QgsVectorLayer(base + '/shp/geo_regions.shp', 'geo_regions', 'ogr')
-    dem = base + '/Raster/srtm_45_04.tif'
+    from qgis.PyQt.QtCore import QVariant
+    roads = QgsVectorLayer(base + '/shp/gis_osm_roads_free_Batumi.shp', 'roads', 'ogr')
+    print(roads.crs().authid())                       # EPSG:4326
 
-    imereti = processing.run('native:extractbyexpression', {
-        'INPUT': regions,
-        'EXPRESSION': '"name_en" = \'Imereti\'',   # შეამოწმეთ სვეტის სახელი
-        'OUTPUT': 'memory:'})['OUTPUT']
+    roads.dataProvider().addAttributes([QgsField('WGS_Length', QVariant.Double),
+                                        QgsField('UTM_Length', QVariant.Double)])
+    roads.updateFields()
+    iw = roads.fields().lookupField('WGS_Length')
+    iu = roads.fields().lookupField('UTM_Length')
 
-    clipped = base + '/Raster/imereti_dem.tif'
-    processing.run('gdal:cliprasterbymasklayer', {
-        'INPUT': dem, 'MASK': imereti, 'CROP_TO_CUTLINE': True,
-        'KEEP_RESOLUTION': True, 'NODATA': -9999, 'OUTPUT': clipped})
+    ctx = QgsProject.instance().transformContext()
+    d = QgsDistanceArea()                             # ელიფსოიდური სიგრძე
+    d.setSourceCrs(roads.crs(), ctx)
+    d.setEllipsoid('WGS84')
 
-    processing.run('gdal:hillshade', {
-        'INPUT': clipped, 'BAND': 1, 'Z_FACTOR': 1, 'AZIMUTH': 315,
-        'ALTITUDE': 45, 'OUTPUT': base + '/Raster/imereti_hillshade.tif'})
-    iface.addRasterLayer(base + '/Raster/imereti_hillshade.tif', 'hillshade')
+    # ბათუმი ~41,6°E -> UTM ზონა 37N -> EPSG:32637
+    to_utm = QgsCoordinateTransform(roads.crs(), QgsCoordinateReferenceSystem('EPSG:32637'), ctx)
+
+    roads.startEditing()
+    for f in roads.getFeatures():
+        g = QgsGeometry(f.geometry())                 # ასლი
+        wgs = d.measureLength(g) / 1000               # კმ
+        g.transform(to_utm)
+        utm = g.length() / 1000                       # კმ
+        roads.changeAttributeValue(f.id(), iw, wgs)
+        roads.changeAttributeValue(f.id(), iu, utm)
+    roads.commitChanges()
     ```
+    > ბათუმი მთლიანად ერთ UTM ზონაშია. ზონის გამოსათვლელად: `int((lon + 180) // 6) + 1` (41,6°E → 37).
 
----
+    **შემოწმება:** ყველა 11 738 ხაზის ჯამი: `WGS_Length` ≈ 1202,6 კმ, `UTM_Length` ≈ 1202,8 კმ. სხვაობა მცირეა, რადგან UTM-ში მასშტაბის დამახინჯებაა.
 
-## ნაწილი 2 (საქაღალდე: `part_2`)
-
-1. `saxli`-ში დაამატეთ სვეტები `X_1` / `Y_1` და PyQGIS-ით გამოთვალეთ კოორდინატები შესაბამისი UTM ზონისა და ფორმულის გამოყენებით. *(ერთ შრეში ოთხივე ფორმულის შედეგი ვერ ჩაეწერება.)*
-2. `saxli_1`-ში დაამატეთ `Lat` / `Long` სვეტები და გამოთვალეთ WGS-84 ელიფსოიდის კოორდინატები.
-3. გააერთიანეთ `saxli_1` და `saxli`.
-4. `srtm_45_04.tif` მოჭერით იმერეთისა და აჭარის რეგიონებით და მიღებული ორი ნაწილი გააერთიანეთ ერთ რასტრად `imereti_achara_dem.tif`.
-
-??? success "ამოხსნა 2.1 – 2.2"
-    ```python
-    def fill_xy(layer, fx, fy, target_epsg):
-        """ავსებს fx, fy სვეტებს კოორდინატებით target CRS-ში."""
-        tr = QgsCoordinateTransform(layer.crs(),
-              QgsCoordinateReferenceSystem(target_epsg), QgsProject.instance())
-        layer.startEditing()
-        for f in layer.getFeatures():
-            p = tr.transform(f.geometry().asPoint())
-            f[fx], f[fy] = p.x(), p.y()
-            layer.updateFeature(f)
-        layer.commitChanges()
-
-    # X_1/Y_1 - UTM 38N (იმერეთი ~43°E), Lat/Long - WGS 84
-    fill_xy(saxli, 'X_1', 'Y_1', 'EPSG:32638')
-    fill_xy(saxli_1, 'Long', 'Lat', 'EPSG:4326')
-    ```
-    > სვეტები ჯერ დაამატეთ `addAttributes`-ით (Double ტიპის).
-
-??? success "ამოხსნა 2.4"
-    ```python
-    parts = []
-    for name in ('Imereti', 'Ajaria'):          # სახელები შეამოწმეთ ცხრილში
-        mask = processing.run('native:extractbyexpression', {
-            'INPUT': regions, 'EXPRESSION': f'"name_en" = \'{name}\'',
-            'OUTPUT': 'memory:'})['OUTPUT']
-        out = f'{base}/Raster/{name}_dem.tif'
-        processing.run('gdal:cliprasterbymasklayer', {
-            'INPUT': dem, 'MASK': mask, 'CROP_TO_CUTLINE': True,
-            'NODATA': -9999, 'OUTPUT': out})
-        parts.append(out)
-
-    processing.run('gdal:merge', {
-        'INPUT': parts, 'NODATA_INPUT': -9999, 'NODATA_OUTPUT': -9999,
-        'DATA_TYPE': 5, 'OUTPUT': base + '/Raster/imereti_achara_dem.tif'})
-    ```
+    > შრე `gis_osm_roads_free_Batumi` მიღებულია მთელი საქართველოს `gis_osm_roads_free_1`-იდან (332 755 ხაზი) ბათუმის მუნიციპალიტეტით მოჭრით. ცხრილში „ქალაქის" ველი არ არის, ამიტომ გამოყენებულია სივრცითი ოპერაცია `native:clip`.
