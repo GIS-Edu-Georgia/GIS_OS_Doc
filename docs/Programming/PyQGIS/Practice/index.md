@@ -29,9 +29,9 @@
 [`sample_data/practice`](https://github.com/ezdanapak/GIS_OS_Doc/tree/main/docs/Programming/PyQGIS/sample_data/practice).
 თითოეული დავალების გვერდზე მითითებულია საჭირო ფაილები.
 
-რელიეფის მოდელი [`srtm_45_04.tif`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/pyqgis-data-v1/srtm_45_04.tif) (24 MB) ცალკე, GitHub Release-იდან ჩამოიტვირთება. დანარჩენი ფაილები `shared/` და `task_04/` საქაღალდეებშია.
+რელიეფის მოდელი [`srtm_45_04.tif`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/pyqgis-data-v1/srtm_45_04.tif) (24 MB) ცალკე, GitHub Release-იდან ჩამოიტვირთება. დანარჩენი ფაილები `osm/` და `task_04/` საქაღალდეებშია.
 
-OpenStreetMap-ის შრეები (საქართველო, 7 shapefile) ერთ არქივადაა: [`OSM_shp_PyQGIS.zip`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/osm-data-v1/OSM_shp_PyQGIS.zip) (7 MB). მონაცემები © OpenStreetMap contributors (ODbL).
+OpenStreetMap-ის შრეები (საქართველო, 8 shapefile) ერთ არქივადაა: [`OSM_shp_PyQGIS.zip`](https://github.com/GIS-Edu-Georgia/GIS_OS_Doc/releases/download/osm-data-v1/OSM_shp_PyQGIS.zip) (8 MB; მათ შორის `gis_osm_roads_free_Batumi`). მონაცემები © OpenStreetMap contributors (ODbL).
 
 ---
 
