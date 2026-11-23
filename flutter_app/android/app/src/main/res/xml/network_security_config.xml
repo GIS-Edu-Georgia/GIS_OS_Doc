@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- ნაგულისხმევად — არანაირი cleartext (HTTP) ტრაფიკი დაშვებული არ არის -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- მხოლოდ ჩვენი დომეინი ცხადდება ცალსახად (HTTPS only) -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">osdoc.qgis.ge</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

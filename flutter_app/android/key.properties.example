@@ -1,0 +1,5 @@
+# Copy to android/key.properties (git-ignored) and fill in the passwords.
+storeFile=keystore/releasekey
+keyAlias=gisosdockey
+storePassword=
+keyPassword=
