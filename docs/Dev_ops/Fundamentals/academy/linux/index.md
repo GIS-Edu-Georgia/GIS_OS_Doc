@@ -20,4 +20,4 @@ flowchart LR
 | 5 | [პროცესები](processes.md) | `ps`, `kill`, სიგნალები |
 | 6 | [პაკეტების მართვა](package-management.md) | `apt`, `dpkg` |
 
-**დაკავშირებული მასალა:** [FHS: ფაილური სისტემის იერარქია](../../linux/filesystem-hierarchy.md) · [Linux Cheat Sheet](../../linux/cheatsheet.md) · [ქვიზები](../../quiz.md) · [ბრძანებების ცნობარი](../../commands.md)
+**დაკავშირებული მასალა:** [FHS: ფაილური სისტემის იერარქია](../../linux/filesystem-hierarchy.md) · [Linux Cheat Sheet](../../linux/cheatsheet.md) · [პრაქტიკა: პირველი კვირა](../../linux-week1/index.md) · [ქვიზები](../../quiz.md) · [ბრძანებების ცნობარი](../../commands.md)

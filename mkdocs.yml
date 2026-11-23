@@ -432,6 +432,19 @@ nav:
           - 'პაკეტების მართვა': Dev_ops/Fundamentals/academy/linux/package-management.md
           - 'ფაილური სისტემის იერარქია (FHS)': Dev_ops/Fundamentals/linux/filesystem-hierarchy.md
           - 'Linux Cheat Sheet': Dev_ops/Fundamentals/linux/cheatsheet.md
+          - 'პრაქტიკა: პირველი კვირა':
+            - 'მთავარი': Dev_ops/Fundamentals/linux-week1/index.md
+            - 'ბრძანებების ცნობარი': Dev_ops/Fundamentals/linux-week1/commands.md
+            - 'დღე 1: შესვლა და გარემო': Dev_ops/Fundamentals/linux-week1/day1.md
+            - 'დღე 2: საქაღალდეები და გზები': Dev_ops/Fundamentals/linux-week1/day2.md
+            - 'დღე 3: დალაგება და ძებნა': Dev_ops/Fundamentals/linux-week1/day3.md
+            - 'დღე 4: ლოგები': Dev_ops/Fundamentals/linux-week1/day4.md
+            - 'დღე 5: კონფიგურაცია და უფლებები': Dev_ops/Fundamentals/linux-week1/day5.md
+            - 'დღე 6: რელიზები, ბმულები, backup': Dev_ops/Fundamentals/linux-week1/day6.md
+            - 'დღე 7: გადაცემა და ჩაბარება': Dev_ops/Fundamentals/linux-week1/day7.md
+            - 'შეცდომების კატალოგი': Dev_ops/Fundamentals/linux-week1/errors.md
+            - 'დაცვა და ჩაბარება': Dev_ops/Fundamentals/linux-week1/defense.md
+            - 'თვითშემოწმება': Dev_ops/Fundamentals/linux-week1/self-check.md
           - 'System Update': Dev_ops/Fundamentals/tasks/task5.md
           - 'User and Permission Management': Dev_ops/Fundamentals/tasks/task6.md
         - 'ქსელი და უსაფრთხოება':

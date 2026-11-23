@@ -43,7 +43,7 @@ Dev Ops სექცია გასწავლით, როგორ გა�
 | თემა | სად |
 |---|---|
 | გარემო | [Virtualbox ინსტალაცია](Fundamentals/setup/setup-virtualbox.md), [Ubuntu ინსტალაცია](Fundamentals/setup/setup-ubuntu.md), [Virtual Machine (Task 1)](Fundamentals/tasks/task1.md) |
-| Linux | [Linux Academy](Fundamentals/academy/linux/index.md), [ფაილური სისტემის იერარქია](Fundamentals/linux/filesystem-hierarchy.md), [Linux Cheat Sheet](Fundamentals/linux/cheatsheet.md), [User and Permission Management](Fundamentals/tasks/task6.md) |
+| Linux | [Linux Academy](Fundamentals/academy/linux/index.md), [ფაილური სისტემის იერარქია](Fundamentals/linux/filesystem-hierarchy.md), [Linux Cheat Sheet](Fundamentals/linux/cheatsheet.md), [User and Permission Management](Fundamentals/tasks/task6.md), [პრაქტიკა: პირველი კვირა](Fundamentals/linux-week1/index.md) |
 | ქსელი და უსაფრთხოება | [Network Setup](Fundamentals/tasks/task2.md), [SSH Configuration](Fundamentals/tasks/task4.md), [Firewall Setup](Fundamentals/tasks/task7.md), [Network Diagnostics](Fundamentals/tasks/task22.md), [Security Audit](Fundamentals/tasks/task23.md) |
 | Web სერვერი | [Web Server Installation](Fundamentals/tasks/task8.md), [Reverse Proxy Configuration](Fundamentals/tasks/task16.md), [SSL Certificate](Fundamentals/tasks/task17.md) |
 | Docker | [Docker Installation](Fundamentals/tasks/task14.md), [Containerized Application](Fundamentals/tasks/task15.md), [Docker ინფრასტრუქტურა](Fundamentals/production/docker-infrastructure.md) |
