@@ -17,8 +17,6 @@ theme:
   language: ka
   features:
     - navigation.footer
-    - navigation.instant
-    - navigation.instant.progress
     - navigation.tracking
     - navigation.path
     - navigation.indexes
