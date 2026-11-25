@@ -33,7 +33,7 @@ jobs:
           node-version: "24"
 
       - name: Install pinned MkDocs dependencies
-        run: pip install mkdocs==1.6.0 mkdocs-material==9.5.27 mkdocs-jupyter==0.25.1
+        run: pip install mkdocs==1.6.0 mkdocs-material==9.5.27 mkdocs-jupyter==0.25.1 mkdocs-static-i18n==1.2.3
 
       - name: Strict MkDocs build (output to a temp dir, not published)
         run: mkdocs build --strict --site-dir "$RUNNER_TEMP/site"
