@@ -2,10 +2,11 @@
 // GIS OS Docs — Service Worker (PWA ოფლაინ მხარდაჭერა)
 // ======================================================
 // ⚠️ ეს ფაილი root-ში უნდა იყოს (docs/service-worker.js),
-// რომ scope охватывал მთელ საიტს.
+// რომ scope მთელ საიტს მოიცავდეს.
 // რეგისტრაცია ხდება: docs/js/service-worker-register.js-ის მეშვეობით.
 
-var CACHE_NAME = 'gis-os-docs-v1';
+// v2: საიტის ფაილები network-first (ძველი ვერსია აღარ ჩანს); v1 cache activate-ზე იშლება
+var CACHE_NAME = 'gis-os-docs-v2';
 
 // ოფლაინ-ის შემთხვევაში fallback გვერდი
 var OFFLINE_URL = './';
@@ -43,6 +44,43 @@ self.addEventListener('activate', function (event) {
 });
 
 // ==================== FETCH ====================
+// სტრატეგია:
+//  • საიტის ფაილები (HTML, JS, CSS, ქვიზის მონაცემები): network-first.
+//    ყოველთვის ახალი ვერსია მოდის ქსელიდან; cache მხოლოდ ოფლაინისთვისაა.
+//    cache: 'no-cache' ბრაუზერის HTTP ქეშსაც (GitHub Pages: max-age=600) გადაამოწმებინებს.
+//  • Google Fonts: cache-first (ფონტები არ იცვლება, ოფლაინშიც ჩანს).
+function putInCache(request, response) {
+  if (!response || response.status !== 200 || response.type === 'opaque') return;
+  var copy = response.clone();
+  caches.open(CACHE_NAME).then(function (cache) { cache.put(request, copy); });
+}
+
+function networkFirst(request) {
+  return fetch(request, { cache: 'no-cache' })
+    .then(function (response) {
+      putInCache(request, response);
+      return response;
+    })
+    .catch(function () {
+      // ქსელი მიუწვდომელია: შენახული ვერსია, navigation-ზე offline გვერდი
+      return caches.match(request).then(function (cached) {
+        if (cached) return cached;
+        if (request.mode === 'navigate') return caches.match(OFFLINE_URL);
+        return Response.error();
+      });
+    });
+}
+
+function cacheFirst(request) {
+  return caches.match(request).then(function (cached) {
+    if (cached) return cached;
+    return fetch(request).then(function (response) {
+      putInCache(request, response);
+      return response;
+    });
+  });
+}
+
 self.addEventListener('fetch', function (event) {
   // მხოლოდ GET მოთხოვნები
   if (event.request.method !== 'GET') return;
@@ -50,53 +88,11 @@ self.addEventListener('fetch', function (event) {
   // chrome-extension და სხვა non-http სქემები გამოვტოვოთ
   if (!event.request.url.startsWith('http')) return;
 
-  // მხოლოდ საიტი და Google Fonts (ფონტები ოფლაინშიც რომ გამოჩნდეს)
   var url = new URL(event.request.url);
-  var allowed = url.origin === self.location.origin ||
-    url.hostname === 'fonts.googleapis.com' ||
-    url.hostname === 'fonts.gstatic.com';
-  if (!allowed) return;
-
-  event.respondWith(
-    caches.match(event.request).then(function (cachedResponse) {
-      // Cache-ში პასუხი იქნება — დავაბრუნოთ, ფონში განვაახლოთ
-      if (cachedResponse) {
-        fetch(event.request)
-          .then(function (networkResponse) {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then(function (cache) {
-                cache.put(event.request, networkResponse);
-              });
-            }
-          })
-          .catch(function () {});
-        return cachedResponse;
-      }
-
-      // Cache-ში არ არის — ქსელიდან მოვიტანოთ და შევინახოთ
-      return fetch(event.request)
-        .then(function (networkResponse) {
-          if (
-            !networkResponse ||
-            networkResponse.status !== 200 ||
-            networkResponse.type === 'opaque'
-          ) {
-            return networkResponse;
-          }
-
-          var responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(event.request, responseToCache);
-          });
-
-          return networkResponse;
-        })
-        .catch(function () {
-          // ქსელი მიუწვდომელია — navigation-ისთვის offline გვერდი
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE_URL);
-          }
-        });
-    })
-  );
+  if (url.origin === self.location.origin) {
+    event.respondWith(networkFirst(event.request));
+  } else if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(cacheFirst(event.request));
+  }
+  // სხვა დომენები: service worker არ ერევა
 });
