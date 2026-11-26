@@ -125,7 +125,7 @@ test("new format: explanations are listed on the result screen", async () => {
   assert.strictEqual(byClass(h.root, "qh-exp").length, 2, "2 of 3 questions have explanations");
 });
 
-test("devops data: 12 subjects, 180 questions, 86 explanations, structural invariants", () => {
+test("devops data: 12 subjects, 180 questions, 86 explanations, bilingual, structural invariants", () => {
   const subjects = loadSubjects(DEVOPS);
   assert.strictEqual(subjects.length, 12);
   let q = 0, e = 0;
@@ -134,12 +134,14 @@ test("devops data: 12 subjects, 180 questions, 86 explanations, structural invar
     assert.ok(/^devops-[a-z0-9]+$/.test(s.id), s.id);
     assert.ok(!existingIds.includes(s.id));
     assert.ok(s.title.ka && s.desc.ka && s.icon);
+    assert.ok(s.title.en && s.desc.en, "English title/desc: " + s.id);
     for (const quiz of s.quizzes) for (const x of quiz.questions) {
-      q++; assert.strictEqual(typeof x[0], "string"); assert.strictEqual(x[1], null);
+      q++; assert.strictEqual(typeof x[0], "string");
+      assert.ok(typeof x[1] === "string" && x[1].length > 0, "English question: " + x[0]);
       assert.ok(Array.isArray(x[2]) && x[2].length >= 2);
       assert.ok(Number.isInteger(x[3]) && x[3] >= 0 && x[3] < x[2].length);
-      x[2].forEach((o) => assert.ok(!String(o).includes("|"), "option must not contain |: " + o));
-      if (x[4] !== undefined) { e++; assert.strictEqual(typeof x[4], "string"); }
+      x[2].forEach((o) => assert.ok(String(o).split("|").length <= 2, "option has at most one ka|en separator: " + o));
+      if (x[4] !== undefined) { e++; assert.ok(x[4].ka && x[4].en, "bilingual explanation: " + x[0]); }
     }
   }
   assert.strictEqual(new Set(subjects.map((s) => s.id)).size, 12);
@@ -197,4 +199,16 @@ test("Quiz hub: a pre-existing saved session/progress (old localStorage state) s
   const h = await boot(NEW, loadSubjects([...EXISTING, ...DEVOPS]), { storage: { "gisosdoc:quizhub:v1": saved } });
   const progressBadges = byClass(h.root, "qh-meta").map((m) => textOf(m));
   assert.ok(progressBadges.some((t) => /1\/\d+/.test(t)), "old progress for gis is shown: " + progressBadges[0]);
+});
+
+test("Quiz hub: English pages (/en/) list the same subjects and point data-base back to the root data folder", () => {
+  const pairs = [
+    [["Quiz", "index.md"], ["Quiz", "index.en.md"], "../../Quiz/data/"],
+    [["Dev_ops", "Fundamentals", "quiz.md"], ["Dev_ops", "Fundamentals", "quiz.en.md"], "../../../../Quiz/data/"],
+  ];
+  for (const [ka, en, base] of pairs) {
+    const enFile = path.join(ROOT, "docs", ...en);
+    assert.deepStrictEqual(subjectsAttr(enFile), subjectsAttr(path.join(ROOT, "docs", ...ka)), en.join("/"));
+    assert.ok(fs.readFileSync(enFile, "utf8").includes('data-base="' + base + '"'), "data-base in " + en.join("/"));
+  }
 });
