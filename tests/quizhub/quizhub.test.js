@@ -135,11 +135,16 @@ test("devops data: 12 subjects, 180 questions, 86 explanations, structural invar
     assert.ok(!existingIds.includes(s.id));
     assert.ok(s.title.ka && s.desc.ka && s.icon);
     for (const quiz of s.quizzes) for (const x of quiz.questions) {
-      q++; assert.strictEqual(typeof x[0], "string"); assert.strictEqual(x[1], null);
+      const bilingual = s.id === "devops-linuxweek1"; // fully translated: ka|en options, {ka,en} explanations
+      q++; assert.strictEqual(typeof x[0], "string");
+      assert.ok(bilingual ? typeof x[1] === "string" && x[1].length > 0 : x[1] === null, "en question: " + s.id);
       assert.ok(Array.isArray(x[2]) && x[2].length >= 2);
       assert.ok(Number.isInteger(x[3]) && x[3] >= 0 && x[3] < x[2].length);
-      x[2].forEach((o) => assert.ok(!String(o).includes("|"), "option must not contain |: " + o));
-      if (x[4] !== undefined) { e++; assert.strictEqual(typeof x[4], "string"); }
+      x[2].forEach((o) => assert.strictEqual(String(o).split("|").length, bilingual ? 2 : 1, "option | count: " + o));
+      if (x[4] !== undefined) {
+        e++;
+        if (bilingual) assert.ok(x[4].ka && x[4].en, "{ka,en} explanation"); else assert.strictEqual(typeof x[4], "string");
+      }
     }
   }
   assert.strictEqual(new Set(subjects.map((s) => s.id)).size, 12);
