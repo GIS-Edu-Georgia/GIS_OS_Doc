@@ -1,6 +1,6 @@
 # ქვიზები / Quizzes
 
-<div id="quizhub" data-base="data/" data-subjects="gis,pyqgis,cpp,devops-linux,devops-linuxweek1,devops-network,devops-bash,devops-git,devops-nginx,devops-docker,devops-cicd,devops-k8s,devops-backup,devops-cheatsheet">
+<div id="quizhub" data-base="data/" data-subjects="gis,pyqgis,cpp,devops-linux,devops-linuxweek1,devops-network,devops-bash,devops-git,devops-nginx,devops-docker,devops-cicd,devops-k8s,devops-backup,devops-cheatsheet,devops-vim">
   <noscript>ქვიზისთვის საჭიროა JavaScript / JavaScript is required.</noscript>
 </div>
 
