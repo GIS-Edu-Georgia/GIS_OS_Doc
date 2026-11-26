@@ -12,7 +12,7 @@ const NEW = path.join(ROOT, "docs", "js", "quizhub.js");
 const LEGACY = path.join(__dirname, "fixtures", "quizhub.legacy.js");
 const DATA = path.join(ROOT, "docs", "Quiz", "data");
 const EXISTING = ["gis", "pyqgis", "cpp"].map((n) => path.join(DATA, n + ".js"));
-const DEVOPS_IDS = ["linux", "linuxweek1", "network", "bash", "git", "nginx", "docker", "cicd", "k8s", "backup", "cheatsheet"];
+const DEVOPS_IDS = ["linux", "linuxweek1", "network", "bash", "git", "nginx", "docker", "cicd", "k8s", "backup", "cheatsheet", "vim"];
 const DEVOPS = DEVOPS_IDS.map((n) => path.join(DATA, "devops-" + n + ".js"));
 
 // Drive a whole run: home -> subject -> quiz -> answer every question -> result. Returns every DOM snapshot.
@@ -125,9 +125,9 @@ test("new format: explanations are listed on the result screen", async () => {
   assert.strictEqual(byClass(h.root, "qh-exp").length, 2, "2 of 3 questions have explanations");
 });
 
-test("devops data: 11 subjects, 159 questions, 67 explanations, structural invariants", () => {
+test("devops data: 12 subjects, 180 questions, 86 explanations, structural invariants", () => {
   const subjects = loadSubjects(DEVOPS);
-  assert.strictEqual(subjects.length, 11);
+  assert.strictEqual(subjects.length, 12);
   let q = 0, e = 0;
   const existingIds = loadSubjects(EXISTING).map((s) => s.id);
   for (const s of subjects) {
@@ -142,16 +142,16 @@ test("devops data: 11 subjects, 159 questions, 67 explanations, structural invar
       if (x[4] !== undefined) { e++; assert.strictEqual(typeof x[4], "string"); }
     }
   }
-  assert.strictEqual(new Set(subjects.map((s) => s.id)).size, 11);
-  assert.strictEqual(q, 159);
-  assert.strictEqual(e, 67);
+  assert.strictEqual(new Set(subjects.map((s) => s.id)).size, 12);
+  assert.strictEqual(q, 180);
+  assert.strictEqual(e, 86);
 });
 
 test("devops data: engine renders every devops subject without error", async () => {
   const subjects = loadSubjects(DEVOPS);
   const h = await boot(NEW, subjects);
-  assert.strictEqual(byClass(h.root, "qh-card").length, 11);
-  for (let i = 0; i < 11; i++) {
+  assert.strictEqual(byClass(h.root, "qh-card").length, 12);
+  for (let i = 0; i < 12; i++) {
     const hh = await boot(NEW, subjects);
     click(byClass(hh.root, "qh-card")[i]); await tick();
     click(byClass(hh.root, "qh-card")[0]); await tick();
@@ -182,10 +182,10 @@ test("Quiz hub: the DevOps page references the same devops subjects", () => {
   assert.deepStrictEqual(page, DEVOPS_IDS.map((n) => "devops-" + n));
 });
 
-test("Quiz hub: all 14 subjects render as cards; existing ones keep working in the same hub", async () => {
+test("Quiz hub: all 15 subjects render as cards; existing ones keep working in the same hub", async () => {
   const all = loadSubjects([...EXISTING, ...DEVOPS]);
   const h = await boot(NEW, all);
-  assert.strictEqual(byClass(h.root, "qh-card").length, 14);
+  assert.strictEqual(byClass(h.root, "qh-card").length, 15);
   // first existing subject (gis) still plays through with the new engine inside the combined hub
   const a = await drive(NEW, loadSubjects([...EXISTING, ...DEVOPS]));
   assert.ok(a.snaps.length > 5);
