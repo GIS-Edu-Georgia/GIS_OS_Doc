@@ -499,7 +499,7 @@ A **destructor** is a special method of a C++ class that is called **automatical
 
 1. [What is a destructor?](#what_is_a_destructor)
 2. [C++ vs Python — lifecycle](#c_vs_python_lifecycle)
-3. [SIP wrapper — two-layer architecture](#sip_wrapper_two_layer_architecture)
+3. [SIP wrapper — two-layer architecture](#sip_wrapper_two-layer_architecture)
 4. [The problem in PyQGIS](#the_problem_in_pyqgis)
 5. [`del` — calling the C++ destructor by hand](#del_calling_the_c_destructor_by_hand)
 6. [QgsVectorFileWriter — full lifecycle](#qgsvectorfilewriter_full_lifecycle)

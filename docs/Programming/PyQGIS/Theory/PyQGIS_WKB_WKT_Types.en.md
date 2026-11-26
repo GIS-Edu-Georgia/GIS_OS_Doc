@@ -9,8 +9,8 @@
 ## 📋 Contents
 
 1. [Basic definition](#basic_definition)
-2. [WKT — Well-Known Text](#wkt_well_known_text)
-3. [WKB — Well-Known Binary](#wkb_well_known_binary)
+2. [WKT — Well-Known Text](#wkt_well-known_text)
+3. [WKB — Well-Known Binary](#wkb_well-known_binary)
 4. [Similarities and differences](#similarities_and_differences)
 5. [Geometry types](#geometry_types)
 6. [3D and M variants](#3d_and_m_variants)

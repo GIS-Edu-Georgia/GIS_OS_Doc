@@ -23,7 +23,7 @@
    - [PolyLine](#polyline)
    - [Polygon](#polygon)
    - [Measured types (M)](#measured_types_m)
-   - [Three-dimensional types (Z)](#three_dimensional_types_z)
+   - [Three-dimensional types (Z)](#three-dimensional_types_z)
    - [MultiPatch](#multipatch)
 5. [Organization of the index file (.shx)](#organization_of_the_index_file_shx)
 6. [Organization of the dBASE file (.dbf)](#organization_of_the_dbase_file_dbf)
