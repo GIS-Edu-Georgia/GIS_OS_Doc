@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XYZ ტაილები</title>
+<style>
+:root{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--land:#dbeafe}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--land:#26334d}}
+[data-theme=dark]{--bg:#1b1e27;--fg:#e5e7eb;--mut:#9ca3af;--line:#454b5c;--acc:#60a5fa;--card:#262a36;--hit:#fb7185;--land:#26334d}
+[data-theme=light]{--bg:#fff;--fg:#1f2430;--mut:#6b7280;--line:#c7ccd6;--acc:#2563eb;--card:#f3f4f6;--hit:#e11d48;--land:#dbeafe}
+*{box-sizing:border-box}body{margin:0;padding:8px;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif}
+.wrap{display:flex;flex-wrap:wrap;gap:12px}
+canvas{width:100%;max-width:512px;aspect-ratio:1/1;display:block;border:1px solid var(--line);border-radius:8px;cursor:crosshair}
+.side{flex:1;min-width:230px}
+label{color:var(--mut)}input[type=range]{vertical-align:middle;width:140px}
+table{border-collapse:collapse;width:100%;margin-top:8px}td{padding:3px 6px;border-bottom:1px solid var(--line)}td:first-child{color:var(--mut);white-space:nowrap}
+code{font-family:ui-monospace,monospace}
+</style></head><body>
+<div class="wrap">
+ <canvas id="c" width="512" height="512"></canvas>
+ <div class="side">
+  <label>zoom <input id="z" type="range" min="0" max="7" value="3"> <b id="zv">3</b></label>
+  <table>
+   <tr><td>კურსორი</td><td><code id="ll">–</code></td></tr>
+   <tr><td>ტაილი (z/x/y)</td><td><code id="t">–</code></td></tr>
+   <tr><td>quadkey</td><td><code id="qk">–</code></td></tr>
+   <tr><td>TMS y</td><td><code id="tms">–</code></td></tr>
+   <tr><td>მ/პიქსელი</td><td><code id="res">–</code></td></tr>
+   <tr><td>ყველა ტაილი (4<sup>z</sup>)</td><td><code id="all">–</code></td></tr>
+   <tr><td>საქართველო (წითელი)</td><td><code id="ge">–</code> ტაილი</td></tr>
+  </table>
+  <p style="color:var(--mut)">გადაატარეთ მაუსი რუკაზე. ჰორიზონტალური ხაზები (განედები) ზემოთ და ქვემოთ იშლება: ეს მერკატორის დამახინჯებაა.</p>
+ </div>
+</div>
+<script>
+/*CORE*/
+const MAXLAT=85.0511287798,R=6378137;
+function lonlatToTile(lon,lat,z){lat=Math.max(-MAXLAT,Math.min(MAXLAT,lat));const n=2**z;
+ const x=Math.floor((lon+180)/360*n),y=Math.floor((1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n);
+ return [Math.min(x,n-1),Math.min(y,n-1)]}
+function resolution(lat,z){return 2*Math.PI*R*Math.cos(lat*Math.PI/180)/(256*2**z)}
+function quadkey(x,y,z){let k='';for(let i=z;i>0;i--){const m=1<<(i-1);k+=(x&m?1:0)+(y&m?2:0)}return k}
+function mercY(lat){return (1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2}
+function latFromY(v){return Math.atan(Math.sinh(Math.PI*(1-2*v)))*180/Math.PI}
+const GE=[40.0,41.05,46.75,43.6];
+function geTiles(z){const [x0,y1]=lonlatToTile(GE[0],GE[1],z),[x1,y0]=lonlatToTile(GE[2],GE[3],z);return [x0,y0,x1,y1]}
+/*END*/
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id),W=cv.width;
+let z=3,cur=null;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function draw(){
+ ctx.clearRect(0,0,W,W);const n=2**z,s=W/n;
+ const [a,b,c,d]=geTiles(z);ctx.fillStyle=css('--hit');ctx.globalAlpha=.25;ctx.fillRect(a*s,b*s,(c-a+1)*s,(d-b+1)*s);ctx.globalAlpha=1;
+ ctx.strokeStyle=css('--line');ctx.lineWidth=1;ctx.beginPath();
+ for(let i=0;i<=n;i++){ctx.moveTo(i*s+.5,0);ctx.lineTo(i*s+.5,W);ctx.moveTo(0,i*s+.5);ctx.lineTo(W,i*s+.5)}ctx.stroke();
+ ctx.strokeStyle=css('--mut');ctx.setLineDash([3,4]);ctx.beginPath();
+ for(let lat=-80;lat<=80;lat+=20){const y=mercY(lat)*W;ctx.moveTo(0,y);ctx.lineTo(W,y)}
+ for(let lon=-180;lon<=180;lon+=30){const x=(lon+180)/360*W;ctx.moveTo(x,0);ctx.lineTo(x,W)}ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle=css('--mut');ctx.font='11px system-ui';
+ for(let lat=-60;lat<=60;lat+=30)ctx.fillText(lat+'°',3,mercY(lat)*W-3);
+ const gx=(GE[0]+180)/360*W,gy=mercY(GE[3])*W,gw=(GE[2]-GE[0])/360*W,gh=(mercY(GE[1])-mercY(GE[3]))*W;
+ ctx.strokeStyle=css('--hit');ctx.lineWidth=2;ctx.strokeRect(gx,gy,gw,gh);
+ if(cur){const [x,y]=cur.t;ctx.strokeStyle=css('--acc');ctx.lineWidth=3;ctx.strokeRect(x*s,y*s,s,s)}
+ ctx.strokeStyle=css('--fg');ctx.lineWidth=2;ctx.strokeRect(1,1,W-2,W-2);
+ $('all').textContent=(4**z).toLocaleString('en');$('ge').textContent=(c-a+1)*(d-b+1)}
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;
+ const lon=u*360-180,lat=latFromY(v),t=lonlatToTile(lon,lat,z);cur={t};
+ $('ll').textContent=lat.toFixed(3)+'°, '+lon.toFixed(3)+'°';$('t').textContent=z+'/'+t[0]+'/'+t[1];
+ $('qk').textContent=z?quadkey(t[0],t[1],z):'(ცარიელი)';$('tms').textContent=2**z-1-t[1];
+ $('res').textContent=resolution(lat,z).toFixed(z>5?2:0);draw()});
+$('z').oninput=e=>{z=+e.target.value;$('zv').textContent=z;cur=null;draw()};
+function theme(){try{const t=parent.document.body.getAttribute('data-md-color-scheme');if(t)document.documentElement.dataset.theme=t==='slate'?'dark':'light'}catch(e){}draw()}
+try{new MutationObserver(theme).observe(parent.document.body,{attributes:true,attributeFilter:['data-md-color-scheme']})}catch(e){}
+theme();
+</script></body></html>
